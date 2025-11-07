@@ -1,4 +1,4 @@
-# Análise Bibliométrica: Inteligência Artificial na Produção Científica Brasileira
+# Análise Bibliométrica: Inteligência Artificial na Produção Científica Brasileira em Ciências Humanas
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
