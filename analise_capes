@@ -1,19 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov 10 18:04:17 2025
+
+@author: julia
+"""
+
 """
 ================================================================================
 ANÁLISE COMPLETA - CATÁLOGO DE TESES CAPES SOBRE INTELIGÊNCIA ARTIFICIAL
 ================================================================================
 
-VERSÃO 4.11 - TÍTULOS CONCISOS (REMOÇÃO DE INFO DINÂMICA)
+VERSÃO 4.12 - CORRIGIDA (Bugs Resolvidos)
 
-- Títulos dos gráficos (1, 2, 3, 4, 5, 6, 8, 9) simplificados para um formato conciso e estático.
-- Gráfico 4 (Instituições): Gradiente AZUL (Blues_r).
-- Gráfico 3 (Áreas): Gradiente Roxo (Purples_r).
-- Gráfico 2 (Nível): Azul e Laranja.
-- Mantidos os Tons Intermediários no restante do script.
+PRINCIPAIS CORREÇÕES:
+- Tratamento robusto de dados ausentes em colunas críticas
+- Verificação de colunas antes de processamento
+- Gestão adequada de tipos de dados
+- Tratamento de erros em visualizações
 
 INSTRUÇÕES DE USO:
 1. Coloque os arquivos de dados na mesma pasta
-2. Execute: python analise_capes_ia_final.py
+2. Execute: python analise_capes_ia_corrigido.py
 3. Os gráficos serão salvos na pasta 'graficos/' e exibidos na tela.
 
 REQUISITOS:
@@ -32,7 +39,7 @@ import seaborn as sns
 import os
 import warnings
 from collections import Counter
-from matplotlib import cm # Importação necessária para gradiente
+from matplotlib import cm
 
 warnings.filterwarnings('ignore')
 
@@ -55,13 +62,13 @@ plt.rcParams['axes.titlesize'] = 13
 plt.rcParams['axes.labelsize'] = 11
 plt.rcParams['axes.titleweight'] = 'bold'
 
-# Paleta de cores INTERMEDIÁRIAS (Tons mais saturados que pastel, mas suaves)
+# Paleta de cores INTERMEDIÁRIAS
 CORES_INTERMEDIARIAS = [
-    '#E57373',  # 0: Muted Red (Vermelho) - Base para G9 e Linha Mediana
-    '#FFB74D',  # 1: Muted Orange (Laranja) - Doutorado G2/G6 e G9
-    '#81C784',  # 2: Muted Green (Verde) - G8 e G9
-    '#64B5F6',  # 3: Muted Blue (Azul) - G1, G7, Mestrado G2/G6 e Base Gradiente G4
-    '#BA68C8',  # 4: Muted Purple (Roxo) - Base para Gradiente G3
+    '#E57373',  # 0: Muted Red
+    '#FFB74D',  # 1: Muted Orange
+    '#81C784',  # 2: Muted Green
+    '#64B5F6',  # 3: Muted Blue
+    '#BA68C8',  # 4: Muted Purple
     '#FFF176',  # 5: Muted Yellow
     '#F06292',  # 6: Muted Pink
     '#4DB6AC',  # 7: Muted Teal
@@ -71,18 +78,18 @@ CORES_INTERMEDIARIAS = [
     '#E0E0E0',  # 11: Very Light Gray
 ]
 
-# Cores específicas para Nível, Evolução e Foco IA
-COR_AZUL_PRINCIPAL = CORES_INTERMEDIARIAS[3]   # Muted Blue (Gráficos 1, 7)
-COR_MESTRADO = CORES_INTERMEDIARIAS[3]         # Muted Blue (Mestrado G2/G6) 
-COR_DOUTORADO = CORES_INTERMEDIARIAS[1]        # Muted Orange (Doutorado G2/G6) 
-COR_MEDIANA = CORES_INTERMEDIARIAS[0]          # Muted Red (Gráfico 7 - Linha Mediana)
-COR_IA_CENTRAL = CORES_INTERMEDIARIAS[0]       # Muted Red (Gráfico 5)
-COR_IA_RELACIONADA = CORES_INTERMEDIARIAS[1]   # Muted Orange (Gráfico 5)
-COR_IA_OUTROS = CORES_INTERMEDIARIAS[3]        # Muted Blue (Gráfico 5)
-CORES_TOP3 = [CORES_INTERMEDIARIAS[0], CORES_INTERMEDIARIAS[1], CORES_INTERMEDIARIAS[2]] # G-9 (Red, Orange, Green)
+# Cores específicas
+COR_AZUL_PRINCIPAL = CORES_INTERMEDIARIAS[3]
+COR_MESTRADO = CORES_INTERMEDIARIAS[3]
+COR_DOUTORADO = CORES_INTERMEDIARIAS[1]
+COR_MEDIANA = CORES_INTERMEDIARIAS[0]
+COR_IA_CENTRAL = CORES_INTERMEDIARIAS[0]
+COR_IA_RELACIONADA = CORES_INTERMEDIARIAS[1]
+COR_IA_OUTROS = CORES_INTERMEDIARIAS[3]
+CORES_TOP3 = [CORES_INTERMEDIARIAS[0], CORES_INTERMEDIARIAS[1], CORES_INTERMEDIARIAS[2]]
 
 def gerar_paleta_expandida(n):
-    """Gera uma paleta de cores intermediárias harmoniosas para n itens (usado para mais de 12 itens)"""
+    """Gera uma paleta de cores intermediárias harmoniosas para n itens"""
     if n <= len(CORES_INTERMEDIARIAS):
         return CORES_INTERMEDIARIAS[:n]
     
@@ -101,13 +108,10 @@ def gerar_paleta_expandida(n):
     
     return paleta[:n]
 
-# Paletas específicas para gráficos menores
-PALETA_3_CORES = [CORES_INTERMEDIARIAS[0], CORES_INTERMEDIARIAS[2], CORES_INTERMEDIARIAS[3]]
-
 print("="*80)
 print("ANÁLISE DO CATÁLOGO DE TESES CAPES - INTELIGÊNCIA ARTIFICIAL")
 print("="*80)
-print("\nVERSÃO 4.11 - TÍTULOS CONCISOS")
+print("\nVERSÃO 4.12 - CORRIGIDA")
 print("="*80)
 
 # =============================================================================
@@ -135,25 +139,53 @@ if arquivo_dados is None:
     exit()
 
 # Carregar dados
-if arquivo_dados.endswith('.xlsx'):
-    df = pd.read_excel(arquivo_dados, sheet_name='Dados Completos')
-else:
-    df = pd.read_csv(arquivo_dados)
+try:
+    if arquivo_dados.endswith('.xlsx'):
+        df = pd.read_excel(arquivo_dados, sheet_name='Dados Completos')
+    else:
+        df = pd.read_csv(arquivo_dados)
+    print(f"✓ Arquivo carregado: {arquivo_dados}")
+except Exception as e:
+    print(f"❌ ERRO ao carregar arquivo: {e}")
+    exit()
 
-print(f"✓ Arquivo carregado: {arquivo_dados}")
+# Verificar colunas necessárias
+colunas_necessarias = ['titulo', 'autor', 'ano_defesa', 'nivel', 'area', 'instituicao']
+colunas_faltantes = [col for col in colunas_necessarias if col not in df.columns]
+
+if colunas_faltantes:
+    print(f"\n❌ ERRO: Colunas faltantes no dataset: {colunas_faltantes}")
+    print(f"   Colunas disponíveis: {list(df.columns)}")
+    exit()
 
 # Limpeza inicial
-df = df[df['id'] != 'col-md-1'].copy()
+if 'id' in df.columns:
+    df = df[df['id'] != 'col-md-1'].copy()
+
 df = df[df['titulo'].notna()].copy()
 df = df[df['autor'].notna()].copy()
 
 # Normalização
-df['area_normalizada'] = df['area'].str.upper().str.strip()
-df['ano_defesa'] = pd.to_numeric(df['ano_defesa'], errors='coerce').astype('Int64')
-df['decada'] = (df['ano_defesa'] // 10 * 10).astype('Int64')
+df['area_normalizada'] = df['area'].fillna('NÃO ESPECIFICADA').str.upper().str.strip()
+df['ano_defesa'] = pd.to_numeric(df['ano_defesa'], errors='coerce')
+df = df[df['ano_defesa'].notna()].copy()  # Remover registros sem ano
+df['ano_defesa'] = df['ano_defesa'].astype(int)
+df['decada'] = (df['ano_defesa'] // 10 * 10)
+
+# Tratar cidade se existir
+if 'cidade' in df.columns:
+    df['cidade'] = df['cidade'].fillna('NÃO ESPECIFICADA')
+else:
+    df['cidade'] = 'NÃO ESPECIFICADA'
+
+# Tratar páginas se existir
+if 'num_paginas' in df.columns:
+    df['num_paginas'] = pd.to_numeric(df['num_paginas'], errors='coerce')
+else:
+    df['num_paginas'] = np.nan
 
 print(f"✓ {len(df)} publicações carregadas")
-print(f"✓ Período: {int(df['ano_defesa'].min())}-{int(df['ano_defesa'].max())}")
+print(f"✓ Período: {df['ano_defesa'].min()}-{df['ano_defesa'].max()}")
 
 # =============================================================================
 # 2. CLASSIFICAÇÃO POR FOCO EM IA
@@ -177,7 +209,7 @@ def classificar_foco_ia(titulo):
     if pd.isna(titulo):
         return 'Outros Temas'
     
-    titulo_lower = titulo.lower()
+    titulo_lower = str(titulo).lower()
     
     for keyword in keywords_ia_forte:
         if keyword in titulo_lower:
@@ -202,14 +234,18 @@ for foco, count in foco_counts.items():
 print("\n[3/10] Analisando tendências temporais...")
 
 pub_por_ano = df.groupby('ano_defesa').size().reset_index(name='quantidade')
-pub_por_ano['ano_defesa'] = pub_por_ano['ano_defesa'].astype(int)
 pub_por_ano = pub_por_ano.sort_values('ano_defesa')
 
 anos_recentes = pub_por_ano[pub_por_ano['ano_defesa'] >= 2020]['quantidade'].sum()
-crescimento = ((pub_por_ano.iloc[-1]['quantidade'] - pub_por_ano.iloc[0]['quantidade']) / 
-               pub_por_ano.iloc[0]['quantidade'] * 100)
 
-print(f"✓ Crescimento: {crescimento:.0f}% (2013→2023)")
+if len(pub_por_ano) > 1:
+    crescimento = ((pub_por_ano.iloc[-1]['quantidade'] - pub_por_ano.iloc[0]['quantidade']) / 
+                   pub_por_ano.iloc[0]['quantidade'] * 100)
+    print(f"✓ Crescimento: {crescimento:.0f}% ({pub_por_ano.iloc[0]['ano_defesa']}→{pub_por_ano.iloc[-1]['ano_defesa']})")
+else:
+    crescimento = 0
+    print("✓ Dados insuficientes para calcular crescimento")
+
 print(f"✓ Últimos 3 anos: {anos_recentes} publicações ({anos_recentes/len(df)*100:.1f}%)")
 
 # =============================================================================
@@ -229,16 +265,16 @@ print(f"✓ Doutorados: {nivel_counts.get('Doutorado', 0)} ({nivel_counts.get('D
 print("\n[5/10] Analisando todas as áreas temáticas...")
 
 area_counts = df['area_normalizada'].value_counts()
-# ORDENAÇÃO DECRESCENTE
 areas_freq_maior_1 = area_counts[area_counts > 1].sort_values(ascending=False) 
 areas_freq_1 = area_counts[area_counts == 1]
 
 print(f"✓ Total de áreas: {len(area_counts)}")
 print(f"✓ Áreas com 2+ publicações: {len(areas_freq_maior_1)}")
 print(f"✓ Áreas com 1 publicação: {len(areas_freq_1)}")
-print(f"✓ Top 3 áreas:")
-for i, (area, count) in enumerate(area_counts.head(3).items(), 1):
-    print(f"  {i}. {area}: {count} ({count/len(df)*100:.1f}%)")
+if len(area_counts) >= 3:
+    print(f"✓ Top 3 áreas:")
+    for i, (area, count) in enumerate(area_counts.head(3).items(), 1):
+        print(f"  {i}. {area}: {count} ({count/len(df)*100:.1f}%)")
 
 # =============================================================================
 # 6. ANÁLISE DE INSTITUIÇÕES (TODAS)
@@ -246,23 +282,23 @@ for i, (area, count) in enumerate(area_counts.head(3).items(), 1):
 print("\n[6/10] Analisando todas as instituições...")
 
 inst_counts = df['instituicao'].value_counts()
-# ORDENAÇÃO DECRESCENTE
 inst_freq_maior_1 = inst_counts[inst_counts > 1].sort_values(ascending=False)
 inst_freq_1 = inst_counts[inst_counts == 1]
 
 print(f"✓ Total de instituições: {len(inst_counts)}")
 print(f"✓ Instituições com 2+ publicações: {len(inst_freq_maior_1)}")
 print(f"✓ Instituições com 1 publicação: {len(inst_freq_1)}")
-print(f"✓ Top 3 instituições:")
-for i, (inst, count) in enumerate(inst_counts.head(3).items(), 1):
-    print(f"  {i}. {inst}: {count} ({count/len(df)*100:.1f}%)")
+if len(inst_counts) >= 3:
+    print(f"✓ Top 3 instituições:")
+    for i, (inst, count) in enumerate(inst_counts.head(3).items(), 1):
+        print(f"  {i}. {inst}: {count} ({count/len(df)*100:.1f}%)")
 
 # =============================================================================
 # 7. ANÁLISE DE CIDADES
 # =============================================================================
 print("\n[7/10] Analisando distribuição por cidades...")
 
-cidade_counts = df['cidade'].value_counts() # Já é em ordem decrescente
+cidade_counts = df['cidade'].value_counts()
 print("✓ Top 5 cidades:")
 for i, (cidade, count) in enumerate(cidade_counts.head(5).items(), 1):
     print(f"  {i}. {cidade}: {count} ({count/len(df)*100:.1f}%)")
@@ -277,7 +313,7 @@ def extrair_termos(texto):
     if pd.isna(texto):
         return []
     
-    palavras = texto.lower().split()
+    palavras = str(texto).lower().split()
     stopwords = {'de', 'da', 'do', 'dos', 'das', 'e', 'o', 'a', 'os', 'as', 
                  'em', 'no', 'na', 'nos', 'nas', 'para', 'com', 'por', 'um', 'uma'}
     
@@ -291,18 +327,20 @@ for titulo in df['titulo'].dropna():
 termo_freq = Counter(todos_termos)
 top_termos = termo_freq.most_common(20)
 
-print(f"✓ Top 5 termos: {', '.join([t[0] for t in top_termos[:5]])}")
+if top_termos:
+    print(f"✓ Top 5 termos: {', '.join([t[0] for t in top_termos[:5]])}")
 
 # =============================================================================
 # 9. ANÁLISE DE PÁGINAS
 # =============================================================================
 print("\n[9/10] Analisando número de páginas...")
 
-df['num_paginas'] = pd.to_numeric(df['num_paginas'], errors='coerce')
-paginas_stats = df['num_paginas'].describe()
-
-print(f"✓ Média: {paginas_stats['mean']:.0f} páginas")
-print(f"✓ Mediana: {paginas_stats['50%']:.0f} páginas")
+if df['num_paginas'].notna().sum() > 0:
+    paginas_stats = df['num_paginas'].describe()
+    print(f"✓ Média: {paginas_stats['mean']:.0f} páginas")
+    print(f"✓ Mediana: {paginas_stats['50%']:.0f} páginas")
+else:
+    print("✓ Dados de páginas não disponíveis")
 
 # =============================================================================
 # 10. CRIAR PASTA PARA GRÁFICOS
@@ -320,288 +358,417 @@ print("\n" + "="*80)
 print("GERANDO GRÁFICOS COM CORES INTERMEDIÁRIAS E GRADIENTES")
 print("="*80)
 
-# GRÁFICO 1: Evolução Temporal (AZUL INTERMEDIÁRIO)
-print("\n📊 Gráfico 1/9: Evolução Temporal das Publicações")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
-ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
-        marker='o', linewidth=3, markersize=10, 
-        color=COR_AZUL_PRINCIPAL)
-ax.fill_between(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
-                alpha=0.4, color=COR_AZUL_PRINCIPAL) 
+# GRÁFICO 1: Evolução Temporal - 4 VERSÕES PADRONIZADAS
+print("\n📊 Gráfico 1/9: Evolução Temporal das Publicações (4 versões)")
 
-# Título Simplificado
-ax.set_title(f'Evolução temporal das publicações (2013-2023)',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Ano de Defesa', fontsize=12)
-ax.set_ylabel('Quantidade de Publicações', fontsize=12)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, linestyle='--')
+# CORES ROXO PARA CAPES
+COR_ROXO_PRINCIPAL = '#9C27B0'  # Roxo médio
+COR_ROXO_ESCURO = '#6A1B9A'     # Roxo escuro
+COR_ROXO_CLARO = '#BA68C8'      # Roxo claro
 
-for i, row in pub_por_ano.iterrows():
-    ax.text(row['ano_defesa'], row['quantidade'] + 0.5, str(int(row['quantidade'])),
-            ha='center', va='bottom', fontweight='bold', fontsize=9)
-
-plt.tight_layout()
-plt.savefig('graficos/01_evolucao_temporal.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
-
-# GRÁFICO 2: Distribuição por Nível (AZUL e LARANJA)
-print("📊 Gráfico 2/9: Distribuição por Nível Acadêmico - AZUL e LARANJA")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
-
-nivel_counts_sorted = nivel_counts.sort_values(ascending=False)
-colors = [COR_MESTRADO, COR_DOUTORADO] # Muted Blue e Muted Orange
-bars = ax.bar(range(len(nivel_counts_sorted)), nivel_counts_sorted.values,
-              color=colors[:len(nivel_counts_sorted)], edgecolor='black', linewidth=1.5)
-
-ax.set_xticks(range(len(nivel_counts_sorted)))
-ax.set_xticklabels(nivel_counts_sorted.index, fontsize=11)
-# Título Simplificado
-ax.set_title(f'Distribuição por nível acadêmico',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_ylabel('Quantidade', fontsize=12)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='y', linestyle='--')
-
-for bar, v in zip(bars, nivel_counts_sorted.values):
-    pct = (v/len(df))*100
-    ax.text(bar.get_x() + bar.get_width()/2, v + 1, 
-            f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
-
-plt.tight_layout()
-plt.savefig('graficos/02_nivel_academico.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
-
-# GRÁFICO 3: TODAS AS ÁREAS TEMÁTICAS (GRADIENTE ROXO/PÚRPURA)
-print("📊 Gráfico 3/9: Todas as Áreas Temáticas (Frequência > 1) - GRADIENTE ROXO")
-fig, ax = plt.subplots(figsize=(14, max(10, len(areas_freq_maior_1) * 0.4)), facecolor='white')
-
-areas_display = areas_freq_maior_1.copy()
-N = len(areas_display)
-# Colormap Purples_r (Roxo/Púrpura, Reverso para que o mais escuro fique no topo)
-cmap = cm.get_cmap('Purples_r', N + 5)
-cores = [cmap(i) for i in range(N)]
-
-# Criar gráfico
-bars = ax.barh(range(N), areas_display.values,
-               color=cores, edgecolor='black', linewidth=1.2)
-
-ax.set_yticks(range(N))
-ax.set_yticklabels(areas_display.index, fontsize=9)
-ax.invert_yaxis() 
-
-# Título Simplificado
-ax.set_title(f'Distribuição por áreas temáticas',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Quantidade de Publicações', fontsize=11)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='x', linestyle='--')
-
-# Adicionar valores
-for bar, v in zip(bars, areas_display.values):
-    pct = (v/len(df))*100
-    ax.text(v + 0.2, bar.get_y() + bar.get_height()/2,
-            f'{int(v)} ({pct:.1f}%)', va='center', fontsize=8, fontweight='bold')
-
-# Legenda para "Outras" no canto inferior
-if len(areas_freq_1) > 0:
-    areas_outras_lista = ', '.join(areas_freq_1.index[:10])
-    if len(areas_freq_1) > 10:
-        areas_outras_lista += f', ... (mais {len(areas_freq_1) - 10})'
+try:
+    # ===== VERSÃO 1: BARRAS - SIMPLES =====
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
     
-    fig.text(0.12, 0.02, f'* Áreas com 1 publicação (total {len(areas_freq_1)}) incluem: {areas_outras_lista}',
-             fontsize=8, style='italic', wrap=True,
-             bbox=dict(boxstyle='round', facecolor=CORES_INTERMEDIARIAS[5], alpha=0.6)) 
-
-plt.tight_layout()
-plt.subplots_adjust(bottom=0.08)
-plt.savefig('graficos/03_todas_areas.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
-
-# GRÁFICO 4: TODAS AS INSTITUIÇÕES (GRADIENTE AZUL)
-print("📊 Gráfico 4/9: Todas as Instituições (Frequência > 1) - GRADIENTE AZUL")
-fig, ax = plt.subplots(figsize=(14, max(10, len(inst_freq_maior_1) * 0.4)), facecolor='white')
-
-inst_display = inst_freq_maior_1.copy()
-N = len(inst_display)
-# Colormap Blues_r
-cmap = cm.get_cmap('Blues_r', N + 5)
-cores_inst = [cmap(i) for i in range(N)]
-
-# Criar gráfico
-bars = ax.barh(range(N), inst_display.values,
-               color=cores_inst, edgecolor='black', linewidth=1.2)
-
-ax.set_yticks(range(N))
-ax.set_yticklabels(inst_display.index, fontsize=9)
-ax.invert_yaxis() 
-
-# Título Simplificado
-ax.set_title(f'Distribuição por instituições',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Quantidade de Publicações', fontsize=11)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='x', linestyle='--')
-
-# Adicionar valores
-for bar, v in zip(bars, inst_display.values):
-    pct = (v/len(df))*100
-    ax.text(v + 0.15, bar.get_y() + bar.get_height()/2,
-            f'{int(v)} ({pct:.1f}%)', va='center', fontsize=8, fontweight='bold')
-
-# Legenda para "Outras" no canto inferior
-if len(inst_freq_1) > 0:
-    inst_outras_lista = ', '.join(inst_freq_1.index[:8])
-    if len(inst_freq_1) > 8:
-        inst_outras_lista += f', ... (mais {len(inst_freq_1) - 8})'
+    bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
+                  color=COR_ROXO_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
     
-    fig.text(0.12, 0.02, f'* Instituições com 1 publicação (total {len(inst_freq_1)}) incluem: {inst_outras_lista}',
-             fontsize=8, style='italic', wrap=True,
-             bbox=dict(boxstyle='round', facecolor=CORES_INTERMEDIARIAS[5], alpha=0.6)) 
+    for bar, row in zip(bars, pub_por_ano.itertuples()):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
+                f'{int(row.quantidade)}', ha='center', va='bottom', 
+                fontweight='bold', fontsize=9)
+    
+    ax.set_title(f'Distribuição Temporal das Publicações - CAPES (Barras Simples)',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_xlabel('Ano de Defesa', fontsize=12)
+    ax.set_ylabel('Quantidade de Publicações', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+    ax.set_axisbelow(True)
 
-plt.tight_layout()
-plt.subplots_adjust(bottom=0.08)
-plt.savefig('graficos/04_todas_instituicoes.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+    plt.tight_layout()
+    plt.savefig('graficos/01a_temporal_barras_simples.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Versão 1 (Barras Simples) gerada com sucesso")
+    
+    # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    
+    bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
+                  color=COR_ROXO_CLARO, edgecolor='black', linewidth=1.5, alpha=0.85)
+    
+    # Destacar ano com mais publicações
+    max_idx = pub_por_ano['quantidade'].idxmax()
+    bars[max_idx].set_color(COR_ROXO_ESCURO)
+    bars[max_idx].set_linewidth(2.5)
+    bars[max_idx].set_alpha(1.0)
+    
+    for bar, row in zip(bars, pub_por_ano.itertuples()):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
+                f'{int(row.quantidade)}', ha='center', va='bottom', 
+                fontweight='bold', fontsize=9)
+    
+    ax.set_title(f'Distribuição Temporal das Publicações - CAPES (Barras com Destaque)',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_xlabel('Ano de Defesa', fontsize=12)
+    ax.set_ylabel('Quantidade de Publicações', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+    ax.set_axisbelow(True)
 
-# GRÁFICO 5: Classificação por Foco em IA (CORES INTERMEDIÁRIAS)
-print("📊 Gráfico 5/9: Classificação por Foco em IA")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    plt.tight_layout()
+    plt.savefig('graficos/01b_temporal_barras_destaque.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Versão 2 (Barras Destaque) gerada com sucesso")
+    
+    # ===== VERSÃO 3: LINHA - SIMPLES =====
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    
+    ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
+            marker='o', linewidth=3, markersize=8, 
+            color=COR_ROXO_PRINCIPAL, markerfacecolor=COR_ROXO_ESCURO,
+            markeredgecolor='black', markeredgewidth=1.5)
 
-foco_order = ['IA - Foco Central', 'IA - Foco Relacionado', 'Outros Temas']
-foco_counts_ordered = foco_counts.reindex(foco_order, fill_value=0)
+    for i, row in pub_por_ano.iterrows():
+        ax.text(row['ano_defesa'], row['quantidade'] + pub_por_ano['quantidade'].max()*0.02, 
+                str(int(row['quantidade'])), ha='center', va='bottom', 
+                fontweight='bold', fontsize=9)
 
-colors_foco = [COR_IA_CENTRAL, COR_IA_RELACIONADA, COR_IA_OUTROS] # Cores Intermediárias
-bars = ax.bar(range(len(foco_counts_ordered)), foco_counts_ordered.values,
-              color=colors_foco, edgecolor='black', linewidth=1.5)
+    ax.set_title(f'Distribuição Temporal das Publicações - CAPES (Linha Simples)',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_xlabel('Ano de Defesa', fontsize=12)
+    ax.set_ylabel('Quantidade de Publicações', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, linestyle='--')
 
-ax.set_xticks(range(len(foco_counts_ordered)))
-ax.set_xticklabels(foco_counts_ordered.index, fontsize=11, rotation=15, ha='right')
-# Título Simplificado
-ax.set_title(f'Classificação por foco em Inteligência Artificial',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_ylabel('Quantidade', fontsize=12)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+    plt.tight_layout()
+    plt.savefig('graficos/01c_temporal_linha_simples.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Versão 3 (Linha Simples) gerada com sucesso")
+    
+    # ===== VERSÃO 4: LINHA - COM ÁREA PREENCHIDA =====
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    
+    ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
+            marker='o', linewidth=3, markersize=8, 
+            color=COR_ROXO_ESCURO, markerfacecolor=COR_ROXO_PRINCIPAL,
+            markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
+    
+    ax.fill_between(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
+                    alpha=0.3, color=COR_ROXO_PRINCIPAL)
 
-for bar, v in zip(bars, foco_counts_ordered.values):
-    pct = (v/len(df))*100
-    ax.text(bar.get_x() + bar.get_width()/2, v + 1,
-            f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
+    for i, row in pub_por_ano.iterrows():
+        ax.text(row['ano_defesa'], row['quantidade'] + pub_por_ano['quantidade'].max()*0.02, 
+                str(int(row['quantidade'])), ha='center', va='bottom', 
+                fontweight='bold', fontsize=9)
 
-plt.tight_layout()
-plt.savefig('graficos/05_foco_ia.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+    ax.set_title(f'Distribuição Temporal das Publicações - CAPES (Linha com Área)',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_xlabel('Ano de Defesa', fontsize=12)
+    ax.set_ylabel('Quantidade de Publicações', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.legend(fontsize=11, loc='upper left')
 
-# GRÁFICO 6: Evolução por Nível (AZUL e LARANJA)
-print("📊 Gráfico 6/9: Evolução Temporal por Nível")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    plt.tight_layout()
+    plt.savefig('graficos/01d_temporal_linha_area.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Versão 4 (Linha com Área) gerada com sucesso")
+    
+    print("✓ 4 versões de Evolução Temporal geradas com sucesso")
+    
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 1: {e}")
 
-colors_nivel = [COR_MESTRADO, COR_DOUTORADO] # Muted Blue e Muted Orange
-for i, nivel in enumerate(['Mestrado', 'Doutorado']):
-    if nivel in nivel_ano.columns:
-        ax.plot(nivel_ano.index, nivel_ano[nivel], marker='o',
-                label=nivel, linewidth=3, color=colors_nivel[i], markersize=10)
+# GRÁFICO 2: Distribuição por Nível
+print("\n📊 Gráfico 2/9: Distribuição por Nível Acadêmico")
+try:
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
 
-# Título Simplificado
-ax.set_title(f'Evolução temporal por nível acadêmico',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Ano', fontsize=12)
-ax.set_ylabel('Publicações', fontsize=12)
-ax.legend(fontsize=11, loc='upper left')
-ax.grid(True, alpha=0.3, linestyle='--')
-ax.set_facecolor('white')
+    nivel_counts_sorted = nivel_counts.sort_values(ascending=False)
+    colors = [COR_MESTRADO, COR_DOUTORADO]
+    bars = ax.bar(range(len(nivel_counts_sorted)), nivel_counts_sorted.values,
+                  color=colors[:len(nivel_counts_sorted)], edgecolor='black', linewidth=1.5)
 
-plt.tight_layout()
-plt.savefig('graficos/06_evolucao_nivel.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+    ax.set_xticks(range(len(nivel_counts_sorted)))
+    ax.set_xticklabels(nivel_counts_sorted.index, fontsize=11)
+    ax.set_title(f'Distribuição por nível acadêmico',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_ylabel('Quantidade', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, axis='y', linestyle='--')
 
-# GRÁFICO 7: Distribuição de Páginas (AZUL e VERMELHO INTERMEDIÁRIO)
-print("📊 Gráfico 7/9: Distribuição do Número de Páginas")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+    for bar, v in zip(bars, nivel_counts_sorted.values):
+        pct = (v/len(df))*100
+        ax.text(bar.get_x() + bar.get_width()/2, v + 1, 
+                f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
 
-paginas_limpo = df['num_paginas'].dropna()
-ax.hist(paginas_limpo, bins=25, color=COR_AZUL_PRINCIPAL, # Azul Intermediário
-        edgecolor='black', alpha=0.8, linewidth=1.5)
+    plt.tight_layout()
+    plt.savefig('graficos/02_nivel_academico.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Gráfico 2 gerado com sucesso")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 2: {e}")
 
-n_com_paginas = len(paginas_limpo)
-media = paginas_limpo.mean()
-mediana = paginas_limpo.median()
+# GRÁFICO 3: TODAS AS ÁREAS TEMÁTICAS
+print("\n📊 Gráfico 3/9: Todas as Áreas Temáticas (Frequência > 1)")
+try:
+    if len(areas_freq_maior_1) > 0:
+        fig, ax = plt.subplots(figsize=(14, max(10, len(areas_freq_maior_1) * 0.4)), facecolor='white')
 
-# Título Simplificado
-ax.set_title(f'Distribuição do Número de Páginas',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Número de Páginas', fontsize=12)
-ax.set_ylabel('Frequência', fontsize=12)
-ax.axvline(mediana, color=COR_MEDIANA, linestyle='--', # Vermelho Intermediário
-           linewidth=3, label=f'Mediana: {mediana:.0f} páginas')
-ax.legend(fontsize=11, loc='upper right')
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+        areas_display = areas_freq_maior_1.copy()
+        N = len(areas_display)
+        cmap = cm.get_cmap('Purples_r', N + 5)
+        cores = [cmap(i) for i in range(N)]
 
-plt.tight_layout()
-plt.savefig('graficos/07_distribuicao_paginas.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+        bars = ax.barh(range(N), areas_display.values,
+                       color=cores, edgecolor='black', linewidth=1.2)
 
-# GRÁFICO 8: Top 10 Cidades (GRADIENTE VERDE)
-print("📊 Gráfico 8/9: Top 10 Cidades com Mais Publicações - COR: GRADIENTE VERDE")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+        ax.set_yticks(range(N))
+        ax.set_yticklabels(areas_display.index, fontsize=9)
+        ax.invert_yaxis()
 
-top10_cidades = cidade_counts.head(10)
-N = len(top10_cidades)
-# Colormap Greens_r
-cmap = cm.get_cmap('Greens_r', N + 5)
-cores_cidades = [cmap(i) for i in range(N)]
+        ax.set_title(f'Distribuição por áreas temáticas',
+                     fontweight='bold', fontsize=13, pad=20)
+        ax.set_xlabel('Quantidade de Publicações', fontsize=11)
+        ax.set_facecolor('white')
+        ax.grid(True, alpha=0.3, axis='x', linestyle='--')
 
-bars = ax.barh(range(N), top10_cidades.values,
-               color=cores_cidades, 
-               edgecolor='black', linewidth=1.5)
+        for bar, v in zip(bars, areas_display.values):
+            pct = (v/len(df))*100
+            ax.text(v + 0.2, bar.get_y() + bar.get_height()/2,
+                    f'{int(v)} ({pct:.1f}%)', va='center', fontsize=8, fontweight='bold')
 
-ax.set_yticks(range(N))
-ax.set_yticklabels(top10_cidades.index, fontsize=10)
-ax.invert_yaxis() # Garante que o maior fique no topo
+        if len(areas_freq_1) > 0:
+            areas_outras_lista = ', '.join(areas_freq_1.index[:10])
+            if len(areas_freq_1) > 10:
+                areas_outras_lista += f', ... (mais {len(areas_freq_1) - 10})'
+            
+            fig.text(0.12, 0.02, f'* Áreas com 1 publicação (total {len(areas_freq_1)}) incluem: {areas_outras_lista}',
+                     fontsize=8, style='italic', wrap=True,
+                     bbox=dict(boxstyle='round', facecolor=CORES_INTERMEDIARIAS[5], alpha=0.6))
 
-# Título Simplificado
-ax.set_title(f'Top 10 Cidades com Mais Publicações',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Quantidade de Publicações', fontsize=11)
-ax.set_facecolor('white')
-ax.grid(True, alpha=0.3, axis='x', linestyle='--')
+        plt.tight_layout()
+        plt.subplots_adjust(bottom=0.08)
+        plt.savefig('graficos/03_todas_areas.png', dpi=300, bbox_inches='tight', facecolor='white')
+        plt.show()
+        print("✓ Gráfico 3 gerado com sucesso")
+    else:
+        print("⚠ Sem dados suficientes para gráfico de áreas")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 3: {e}")
 
-for bar, v in zip(bars, top10_cidades.values):
-    pct = (v/len(df))*100
-    ax.text(v + 0.2, bar.get_y() + bar.get_height()/2,
-            f'{int(v)} ({pct:.1f}%)', va='center', fontsize=9, fontweight='bold')
+# GRÁFICO 4: TODAS AS INSTITUIÇÕES
+print("\n📊 Gráfico 4/9: Todas as Instituições (Frequência > 1)")
+try:
+    if len(inst_freq_maior_1) > 0:
+        fig, ax = plt.subplots(figsize=(14, max(10, len(inst_freq_maior_1) * 0.4)), facecolor='white')
 
-plt.tight_layout()
-plt.savefig('graficos/08_top10_cidades.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+        inst_display = inst_freq_maior_1.copy()
+        N = len(inst_display)
+        cmap = cm.get_cmap('Blues_r', N + 5)
+        cores_inst = [cmap(i) for i in range(N)]
 
-# GRÁFICO 9: Evolução das Top 3 Áreas (VERMELHO, LARANJA, VERDE INTERMEDIÁRIO)
-print("📊 Gráfico 9/9: Evolução temporal - Top 3 áreas")
-fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+        bars = ax.barh(range(N), inst_display.values,
+                       color=cores_inst, edgecolor='black', linewidth=1.2)
 
-top3_areas = area_counts.head(3).index
-colors_top3 = CORES_TOP3 # Cores Intermediárias
-for i, area in enumerate(top3_areas):
-    evolucao = df[df['area_normalizada'] == area].groupby('ano_defesa').size()
-    ax.plot(evolucao.index, evolucao.values, marker='o', label=area,
-            linewidth=3, color=colors_top3[i], markersize=10)
+        ax.set_yticks(range(N))
+        ax.set_yticklabels(inst_display.index, fontsize=9)
+        ax.invert_yaxis()
 
-# Título Simplificado
-ax.set_title(f'Evolução Temporal - Top 3 Áreas temáticas',
-             fontweight='bold', fontsize=13, pad=20)
-ax.set_xlabel('Ano', fontsize=12)
-ax.set_ylabel('Publicações', fontsize=12)
-ax.legend(fontsize=11, loc='upper left')
-ax.grid(True, alpha=0.3, linestyle='--')
-ax.set_facecolor('white')
+        ax.set_title(f'Distribuição por instituições',
+                     fontweight='bold', fontsize=13, pad=20)
+        ax.set_xlabel('Quantidade de Publicações', fontsize=11)
+        ax.set_facecolor('white')
+        ax.grid(True, alpha=0.3, axis='x', linestyle='--')
 
-plt.tight_layout()
-plt.savefig('graficos/09_evolucao_top3_areas.png', dpi=300, bbox_inches='tight', facecolor='white')
-plt.show()
+        for bar, v in zip(bars, inst_display.values):
+            pct = (v/len(df))*100
+            ax.text(v + 0.15, bar.get_y() + bar.get_height()/2,
+                    f'{int(v)} ({pct:.1f}%)', va='center', fontsize=8, fontweight='bold')
 
-print("\n✅ Todos os 9 gráficos foram salvos na pasta 'graficos/'")
+        if len(inst_freq_1) > 0:
+            inst_outras_lista = ', '.join(inst_freq_1.index[:8])
+            if len(inst_freq_1) > 8:
+                inst_outras_lista += f', ... (mais {len(inst_freq_1) - 8})'
+            
+            fig.text(0.12, 0.02, f'* Instituições com 1 publicação (total {len(inst_freq_1)}) incluem: {inst_outras_lista}',
+                     fontsize=8, style='italic', wrap=True,
+                     bbox=dict(boxstyle='round', facecolor=CORES_INTERMEDIARIAS[5], alpha=0.6))
+
+        plt.tight_layout()
+        plt.subplots_adjust(bottom=0.08)
+        plt.savefig('graficos/04_todas_instituicoes.png', dpi=300, bbox_inches='tight', facecolor='white')
+        plt.show()
+        print("✓ Gráfico 4 gerado com sucesso")
+    else:
+        print("⚠ Sem dados suficientes para gráfico de instituições")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 4: {e}")
+
+# GRÁFICO 5: Classificação por Foco em IA
+print("\n📊 Gráfico 5/9: Classificação por Foco em IA")
+try:
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+
+    foco_order = ['IA - Foco Central', 'IA - Foco Relacionado', 'Outros Temas']
+    foco_counts_ordered = foco_counts.reindex(foco_order, fill_value=0)
+
+    colors_foco = [COR_IA_CENTRAL, COR_IA_RELACIONADA, COR_IA_OUTROS]
+    bars = ax.bar(range(len(foco_counts_ordered)), foco_counts_ordered.values,
+                  color=colors_foco, edgecolor='black', linewidth=1.5)
+
+    ax.set_xticks(range(len(foco_counts_ordered)))
+    ax.set_xticklabels(foco_counts_ordered.index, fontsize=11, rotation=15, ha='right')
+    ax.set_title(f'Classificação por foco em Inteligência Artificial',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_ylabel('Quantidade', fontsize=12)
+    ax.set_facecolor('white')
+    ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+
+    for bar, v in zip(bars, foco_counts_ordered.values):
+        pct = (v/len(df))*100
+        ax.text(bar.get_x() + bar.get_width()/2, v + 1,
+                f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
+
+    plt.tight_layout()
+    plt.savefig('graficos/05_foco_ia.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Gráfico 5 gerado com sucesso")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 5: {e}")
+
+# GRÁFICO 6: Evolução por Nível
+print("\n📊 Gráfico 6/9: Evolução Temporal por Nível")
+try:
+    fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+
+    colors_nivel = [COR_MESTRADO, COR_DOUTORADO]
+    for i, nivel in enumerate(['Mestrado', 'Doutorado']):
+        if nivel in nivel_ano.columns:
+            ax.plot(nivel_ano.index, nivel_ano[nivel], marker='o',
+                    label=nivel, linewidth=3, color=colors_nivel[i], markersize=10)
+
+    ax.set_title(f'Evolução temporal por nível acadêmico',
+                 fontweight='bold', fontsize=13, pad=20)
+    ax.set_xlabel('Ano', fontsize=12)
+    ax.set_ylabel('Publicações', fontsize=12)
+    ax.legend(fontsize=11, loc='upper left')
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_facecolor('white')
+
+    plt.tight_layout()
+    plt.savefig('graficos/06_evolucao_nivel.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.show()
+    print("✓ Gráfico 6 gerado com sucesso")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 6: {e}")
+
+# GRÁFICO 7: Distribuição de Páginas
+print("\n📊 Gráfico 7/9: Distribuição do Número de Páginas")
+try:
+    paginas_limpo = df['num_paginas'].dropna()
+    
+    if len(paginas_limpo) > 0:
+        fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+
+        ax.hist(paginas_limpo, bins=25, color=COR_AZUL_PRINCIPAL,
+                edgecolor='black', alpha=0.8, linewidth=1.5)
+
+        media = paginas_limpo.mean()
+        mediana = paginas_limpo.median()
+
+        ax.set_title(f'Distribuição do Número de Páginas',
+                     fontweight='bold', fontsize=13, pad=20)
+        ax.set_xlabel('Número de Páginas', fontsize=12)
+        ax.set_ylabel('Frequência', fontsize=12)
+        ax.axvline(mediana, color=COR_MEDIANA, linestyle='--',
+                   linewidth=3, label=f'Mediana: {mediana:.0f} páginas')
+        ax.legend(fontsize=11, loc='upper right')
+        ax.set_facecolor('white')
+        ax.grid(True, alpha=0.3, axis='y', linestyle='--')
+
+        plt.tight_layout()
+        plt.savefig('graficos/07_distribuicao_paginas.png', dpi=300, bbox_inches='tight', facecolor='white')
+        plt.show()
+        print("✓ Gráfico 7 gerado com sucesso")
+    else:
+        print("⚠ Sem dados de páginas disponíveis")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 7: {e}")
+
+# GRÁFICO 8: Top 10 Cidades
+print("\n📊 Gráfico 8/9: Top 10 Cidades com Mais Publicações")
+try:
+    top10_cidades = cidade_counts.head(10)
+    
+    if len(top10_cidades) > 0:
+        fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+
+        N = len(top10_cidades)
+        cmap = cm.get_cmap('Greens_r', N + 5)
+        cores_cidades = [cmap(i) for i in range(N)]
+
+        bars = ax.barh(range(N), top10_cidades.values,
+                       color=cores_cidades, 
+                       edgecolor='black', linewidth=1.5)
+
+        ax.set_yticks(range(N))
+        ax.set_yticklabels(top10_cidades.index, fontsize=10)
+        ax.invert_yaxis()
+
+        ax.set_title(f'Top 10 Cidades com Mais Publicações',
+                     fontweight='bold', fontsize=13, pad=20)
+        ax.set_xlabel('Quantidade de Publicações', fontsize=11)
+        ax.set_facecolor('white')
+        ax.grid(True, alpha=0.3, axis='x', linestyle='--')
+
+        for bar, v in zip(bars, top10_cidades.values):
+            pct = (v/len(df))*100
+            ax.text(v + 0.2, bar.get_y() + bar.get_height()/2,
+                    f'{int(v)} ({pct:.1f}%)', va='center', fontsize=9, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig('graficos/08_top10_cidades.png', dpi=300, bbox_inches='tight', facecolor='white')
+        plt.show()
+        print("✓ Gráfico 8 gerado com sucesso")
+    else:
+        print("⚠ Sem dados de cidades disponíveis")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 8: {e}")
+
+# GRÁFICO 9: Evolução das Top 3 Áreas
+print("\n📊 Gráfico 9/9: Evolução temporal - Top 3 áreas")
+try:
+    if len(area_counts) >= 3:
+        fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
+
+        top3_areas = area_counts.head(3).index
+        colors_top3 = CORES_TOP3
+        for i, area in enumerate(top3_areas):
+            evolucao = df[df['area_normalizada'] == area].groupby('ano_defesa').size()
+            if len(evolucao) > 0:
+                ax.plot(evolucao.index, evolucao.values, marker='o', label=area,
+                        linewidth=3, color=colors_top3[i], markersize=10)
+
+        ax.set_title(f'Evolução Temporal - Top 3 Áreas temáticas',
+                     fontweight='bold', fontsize=13, pad=20)
+        ax.set_xlabel('Ano', fontsize=12)
+        ax.set_ylabel('Publicações', fontsize=12)
+        ax.legend(fontsize=11, loc='upper left')
+        ax.grid(True, alpha=0.3, linestyle='--')
+        ax.set_facecolor('white')
+
+        plt.tight_layout()
+        plt.savefig('graficos/09_evolucao_top3_areas.png', dpi=300, bbox_inches='tight', facecolor='white')
+        plt.show()
+        print("✓ Gráfico 9 gerado com sucesso")
+    else:
+        print("⚠ Sem dados suficientes para top 3 áreas")
+except Exception as e:
+    print(f"❌ Erro ao gerar gráfico 9: {e}")
+
+print("\n✅ Geração de gráficos concluída")
 
 # =============================================================================
 # 12. EXPORTAR RESULTADOS
@@ -610,68 +777,70 @@ print("\n" + "="*80)
 print("Exportando resultados detalhados...")
 print("="*80)
 
-output_excel = 'resultados_detalhados_teses_ia.xlsx'
+try:
+    output_excel = 'resultados_detalhados_teses_ia.xlsx'
 
-with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
-    # Resumo Geral
-    resumo = pd.DataFrame({
-        'Métrica': [
-            'Total de Publicações',
-            'Período Analisado',
-            'Mestrados',
-            'Doutorados',
-            'IA - Foco Central',
-            'IA - Foco Relacionado',
-            'Outros Temas',
-            'Número de Áreas',
-            'Áreas com 2+ publicações',
-            'Áreas com 1 publicação',
-            'Número de Instituições',
-            'Instituições com 2+ publicações',
-            'Instituições com 1 publicação',
-            'Crescimento (%)',
-            'Concentração Últimos 3 anos (%)'
-        ],
-        'Valor': [
-            len(df),
-            f"{int(df['ano_defesa'].min())} - {int(df['ano_defesa'].max())}",
-            nivel_counts.get('Mestrado', 0),
-            nivel_counts.get('Doutorado', 0),
-            foco_counts.get('IA - Foco Central', 0),
-            foco_counts.get('IA - Foco Relacionado', 0),
-            foco_counts.get('Outros Temas', 0),
-            len(area_counts),
-            len(areas_freq_maior_1),
-            len(areas_freq_1),
-            len(inst_counts),
-            len(inst_freq_maior_1),
-            len(inst_freq_1),
-            f"{crescimento:.0f}%",
-            f"{anos_recentes/len(df)*100:.1f}%"
-        ]
-    })
-    resumo.to_excel(writer, sheet_name='Resumo Geral', index=False)
-    
-    # Outras planilhas
-    pub_por_ano.to_excel(writer, sheet_name='Publicações por Ano', index=False)
-    area_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Todas as Áreas')
-    inst_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Todas as Instituições')
-    foco_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Foco em IA')
-    
-    # Áreas com frequência 1
-    if len(areas_freq_1) > 0:
-        areas_freq_1.to_frame('Quantidade').to_excel(writer, sheet_name='Áreas com 1 pub')
-    
-    # Instituições com frequência 1
-    if len(inst_freq_1) > 0:
-        inst_freq_1.to_frame('Quantidade').to_excel(writer, sheet_name='Instituições com 1 pub')
-    
-    termos_df = pd.DataFrame(top_termos, columns=['Termo', 'Frequência'])
-    termos_df.to_excel(writer, sheet_name='Top Termos', index=False)
-    
-    df.to_excel(writer, sheet_name='Dataset Completo', index=False)
+    with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
+        # Resumo Geral
+        resumo = pd.DataFrame({
+            'Métrica': [
+                'Total de Publicações',
+                'Período Analisado',
+                'Mestrados',
+                'Doutorados',
+                'IA - Foco Central',
+                'IA - Foco Relacionado',
+                'Outros Temas',
+                'Número de Áreas',
+                'Áreas com 2+ publicações',
+                'Áreas com 1 publicação',
+                'Número de Instituições',
+                'Instituições com 2+ publicações',
+                'Instituições com 1 publicação',
+                'Crescimento (%)',
+                'Concentração Últimos 3 anos (%)'
+            ],
+            'Valor': [
+                len(df),
+                f"{df['ano_defesa'].min()} - {df['ano_defesa'].max()}",
+                nivel_counts.get('Mestrado', 0),
+                nivel_counts.get('Doutorado', 0),
+                foco_counts.get('IA - Foco Central', 0),
+                foco_counts.get('IA - Foco Relacionado', 0),
+                foco_counts.get('Outros Temas', 0),
+                len(area_counts),
+                len(areas_freq_maior_1),
+                len(areas_freq_1),
+                len(inst_counts),
+                len(inst_freq_maior_1),
+                len(inst_freq_1),
+                f"{crescimento:.0f}%",
+                f"{anos_recentes/len(df)*100:.1f}%"
+            ]
+        })
+        resumo.to_excel(writer, sheet_name='Resumo Geral', index=False)
+        
+        # Outras planilhas
+        pub_por_ano.to_excel(writer, sheet_name='Publicações por Ano', index=False)
+        area_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Todas as Áreas')
+        inst_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Todas as Instituições')
+        foco_counts.to_frame('Quantidade').to_excel(writer, sheet_name='Foco em IA')
+        
+        if len(areas_freq_1) > 0:
+            areas_freq_1.to_frame('Quantidade').to_excel(writer, sheet_name='Áreas com 1 pub')
+        
+        if len(inst_freq_1) > 0:
+            inst_freq_1.to_frame('Quantidade').to_excel(writer, sheet_name='Instituições com 1 pub')
+        
+        if top_termos:
+            termos_df = pd.DataFrame(top_termos, columns=['Termo', 'Frequência'])
+            termos_df.to_excel(writer, sheet_name='Top Termos', index=False)
+        
+        df.to_excel(writer, sheet_name='Dataset Completo', index=False)
 
-print(f"✓ Resultados salvos: {output_excel}")
+    print(f"✓ Resultados salvos: {output_excel}")
+except Exception as e:
+    print(f"❌ Erro ao exportar resultados: {e}")
 
 # =============================================================================
 # 13. RELATÓRIO FINAL
@@ -680,12 +849,15 @@ print("\n" + "="*80)
 print("RELATÓRIO FINAL - INSIGHTS PRINCIPAIS")
 print("="*80)
 
+top3_areas_str = "\n     ".join([f"{i+1}. {area}" for i, area in enumerate(area_counts.head(3).index)])
+top3_inst_str = "\n     ".join([f"{i+1}. {inst}" for i, inst in enumerate(inst_counts.head(3).index)])
+
 print(f"""
 📊 RESUMO EXECUTIVO:
 
 1. VOLUME E CRESCIMENTO:
    • Total de {len(df)} teses/dissertações analisadas
-   • Período: {int(df['ano_defesa'].min())} a {int(df['ano_defesa'].max())}
+   • Período: {df['ano_defesa'].min()} a {df['ano_defesa'].max()}
    • Mestrados: {nivel_counts.get('Mestrado', 0)} ({nivel_counts.get('Mestrado', 0)/len(df)*100:.1f}%)
    • Doutorados: {nivel_counts.get('Doutorado', 0)} ({nivel_counts.get('Doutorado', 0)/len(df)*100:.1f}%)
 
@@ -695,22 +867,17 @@ print(f"""
 
 3. PRINCIPAIS ÁREAS:
    • Top 3 áreas:
-     1. {area_counts.index[0]}
-     2. {area_counts.index[1]}
-     3. {area_counts.index[2]}
+     {top3_areas_str}
 
 4. PRINCIPAIS INSTITUIÇÕES:
    • Top 3 instituições:
-     1. {inst_counts.index[0]}
-     2. {inst_counts.index[1]}
-     3. {inst_counts.index[2]}
+     {top3_inst_str}
 """)
 
 print("="*80)
 print("✅ ANÁLISE CONCLUÍDA COM SUCESSO!")
 print("="*80)
 print(f"\nArquivos gerados:")
-print(f"  • 9 gráficos na pasta 'graficos/' com TÍTULOS CONCISOS")
-print(f"  • {output_excel}")
-print(f"\n💡 DESTAQUE: Títulos dos gráficos estão simplificados e concisos.")
+print(f"  • Gráficos na pasta 'graficos/'")
+print(f"  • resultados_detalhados_teses_ia.xlsx")
 print("\n" + "="*80)
