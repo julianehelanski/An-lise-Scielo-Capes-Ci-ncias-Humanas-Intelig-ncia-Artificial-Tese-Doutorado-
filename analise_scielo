@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Nov 10 18:28:13 2025
+
+@author: julia
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov 10 18:05:16 2025
+
+@author: julia
+"""
+
+# -*- coding: utf-8 -*-
+"""
 ANÁLISE BIBLIOMÉTRICA: ARTIGOS SCIELO COM FOCO EM INTELIGÊNCIA ARTIFICIAL
 Versão otimizada com correções e código limpo
 Autor: Análise Automatizada
@@ -392,25 +406,28 @@ Sem menção: {stats["sem_ia"]} ({stats["sem_ia"]/stats["total"]*100:.1f}%)'''
     plt.show()
 
 def criar_grafico_publicacoes_ano(artigos, output_path):
-    """Gráfico: Publicações por ano"""
-    print("\n→ Gerando gráfico: Distribuição por ano")
+    """Gráfico: Publicações por ano - 4 versões padronizadas"""
+    print("\n→ Gerando gráficos: Distribuição temporal (4 versões)")
     
     years = [int(a['year']) for a in artigos if a['year'] != 'N/A' and a['year'].isdigit()]
     year_counts = Counter(years)
     
-    fig, ax = plt.subplots(figsize=(16, 8))
-    
     years_sorted = sorted(year_counts.keys())
     counts = [year_counts[y] for y in years_sorted]
     
-    bars = ax.bar(years_sorted, counts, color='#5B9BD5', 
-                   edgecolor='black', linewidth=1.5, alpha=0.8)
+    # Definir diretório base
+    base_dir = os.path.dirname(output_path)
     
-    # Destacar ano com mais publicações
-    max_count = max(counts)
-    max_idx = counts.index(max_count)
-    bars[max_idx].set_color('#FFEB3B')
-    bars[max_idx].set_linewidth(2.5)
+    # CORES VERDE PARA SCIELO
+    COR_VERDE_PRINCIPAL = '#66BB6A'  # Verde médio
+    COR_VERDE_ESCURO = '#388E3C'     # Verde escuro
+    COR_VERDE_CLARO = '#81C784'      # Verde claro
+    
+    # ===== VERSÃO 1: BARRAS - SIMPLES =====
+    fig, ax = plt.subplots(figsize=(16, 8))
+    
+    bars = ax.bar(years_sorted, counts, color=COR_VERDE_PRINCIPAL, 
+                   edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for bar, count in zip(bars, counts):
         ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
@@ -419,7 +436,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     
     ax.set_xlabel('Ano', fontsize=13, fontweight='bold')
     ax.set_ylabel('Número de Artigos', fontsize=13, fontweight='bold')
-    ax.set_title('Distribuição de publicações por ano (1985-2025)', 
+    ax.set_title('Distribuição Temporal das Publicações - SciELO (Barras Simples)', 
                  fontsize=14, fontweight='bold', pad=20)
     ax.grid(axis='y', alpha=0.3, linestyle='--')
     ax.set_axisbelow(True)
@@ -429,9 +446,106 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
         plt.xticks(rotation=45, ha='right')
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"  ✓ Salvo: {output_path}")
+    output_v1 = os.path.join(base_dir, '02a_temporal_barras_simples.png')
+    plt.savefig(output_v1, dpi=300, bbox_inches='tight')
+    print(f"  ✓ Versão 1 (Barras Simples): {output_v1}")
     plt.show()
+    
+    # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
+    fig, ax = plt.subplots(figsize=(16, 8))
+    
+    bars = ax.bar(years_sorted, counts, color=COR_VERDE_CLARO, 
+                   edgecolor='black', linewidth=1.5, alpha=0.85)
+    
+    # Destacar ano com mais publicações
+    max_count = max(counts)
+    max_idx = counts.index(max_count)
+    bars[max_idx].set_color(COR_VERDE_ESCURO)
+    bars[max_idx].set_linewidth(2.5)
+    bars[max_idx].set_alpha(1.0)
+    
+    for bar, count in zip(bars, counts):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
+                f'{int(count)}', ha='center', va='bottom', 
+                fontweight='bold', fontsize=9)
+    
+    ax.set_xlabel('Ano', fontsize=13, fontweight='bold')
+    ax.set_ylabel('Número de Artigos', fontsize=13, fontweight='bold')
+    ax.set_title('Distribuição Temporal das Publicações - SciELO (Barras com Destaque)', 
+                 fontsize=14, fontweight='bold', pad=20)
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.set_axisbelow(True)
+    ax.set_ylim(0, max(counts) * 1.15)
+    
+    if len(years_sorted) > 15:
+        plt.xticks(rotation=45, ha='right')
+    
+    plt.tight_layout()
+    output_v2 = os.path.join(base_dir, '02b_temporal_barras_destaque.png')
+    plt.savefig(output_v2, dpi=300, bbox_inches='tight')
+    print(f"  ✓ Versão 2 (Barras Destaque): {output_v2}")
+    plt.show()
+    
+    # ===== VERSÃO 3: LINHA - SIMPLES =====
+    fig, ax = plt.subplots(figsize=(16, 8))
+    
+    ax.plot(years_sorted, counts, marker='o', linewidth=3, markersize=8,
+            color=COR_VERDE_PRINCIPAL, markerfacecolor=COR_VERDE_ESCURO,
+            markeredgecolor='black', markeredgewidth=1.5)
+    
+    for x, y in zip(years_sorted, counts):
+        ax.text(x, y + max(counts)*0.02, f'{int(y)}', 
+                ha='center', va='bottom', fontweight='bold', fontsize=9)
+    
+    ax.set_xlabel('Ano', fontsize=13, fontweight='bold')
+    ax.set_ylabel('Número de Artigos', fontsize=13, fontweight='bold')
+    ax.set_title('Distribuição Temporal das Publicações - SciELO (Linha Simples)', 
+                 fontsize=14, fontweight='bold', pad=20)
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_axisbelow(True)
+    ax.set_ylim(0, max(counts) * 1.15)
+    
+    if len(years_sorted) > 15:
+        plt.xticks(rotation=45, ha='right')
+    
+    plt.tight_layout()
+    output_v3 = os.path.join(base_dir, '02c_temporal_linha_simples.png')
+    plt.savefig(output_v3, dpi=300, bbox_inches='tight')
+    print(f"  ✓ Versão 3 (Linha Simples): {output_v3}")
+    plt.show()
+    
+    # ===== VERSÃO 4: LINHA - COM ÁREA PREENCHIDA =====
+    fig, ax = plt.subplots(figsize=(16, 8))
+    
+    ax.plot(years_sorted, counts, marker='o', linewidth=3, markersize=8,
+            color=COR_VERDE_ESCURO, markerfacecolor=COR_VERDE_PRINCIPAL,
+            markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
+    
+    ax.fill_between(years_sorted, counts, alpha=0.3, color=COR_VERDE_PRINCIPAL)
+    
+    for x, y in zip(years_sorted, counts):
+        ax.text(x, y + max(counts)*0.02, f'{int(y)}', 
+                ha='center', va='bottom', fontweight='bold', fontsize=9)
+    
+    ax.set_xlabel('Ano', fontsize=13, fontweight='bold')
+    ax.set_ylabel('Número de Artigos', fontsize=13, fontweight='bold')
+    ax.set_title('Distribuição Temporal das Publicações - SciELO (Linha com Área)', 
+                 fontsize=14, fontweight='bold', pad=20)
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_axisbelow(True)
+    ax.set_ylim(0, max(counts) * 1.15)
+    ax.legend(fontsize=11, loc='upper left')
+    
+    if len(years_sorted) > 15:
+        plt.xticks(rotation=45, ha='right')
+    
+    plt.tight_layout()
+    output_v4 = os.path.join(base_dir, '02d_temporal_linha_area.png')
+    plt.savefig(output_v4, dpi=300, bbox_inches='tight')
+    print(f"  ✓ Versão 4 (Linha com Área): {output_v4}")
+    plt.show()
+    
+    print(f"  ✓ 4 versões geradas com sucesso!")
 
 def criar_grafico_top_journals(artigos, output_path, top_n=10):
     """Gráfico: Top N periódicos"""
