@@ -290,6 +290,30 @@ def garantir_diretorio(caminho):
     return caminho
 
 
+def salvar_figura(caminho, fig=None, **kwargs):
+    """Salva a figura em PNG e SVG usando o caminho como nome-base.
+
+    A figura é identificada pelo nome do arquivo (ex.: ``capes_15_nivel.png``
+    e ``capes_15_nivel.svg``), sem título embutido na imagem — a legenda fica
+    no texto/LaTeX. Aceita um caminho com ou sem extensão; a extensão é
+    substituída por ``.png`` e ``.svg``.
+
+    Args:
+        caminho: caminho de saída (a extensão, se houver, é ignorada).
+        fig: Figure a salvar; se None, usa a figura atual (``plt``).
+        **kwargs: repassados a ``savefig`` (sobrescrevem os padrões).
+
+    Retorna o caminho-base (sem extensão) das figuras salvas.
+    """
+    base = os.path.splitext(caminho)[0]
+    opcoes = dict(dpi=300, bbox_inches='tight', facecolor='white')
+    opcoes.update(kwargs)
+    alvo = fig if fig is not None else plt
+    for ext in ('png', 'svg'):
+        alvo.savefig(f'{base}.{ext}', **opcoes)
+    return base
+
+
 def buscar_arquivo(nomes, *diretorios):
     """Procura o primeiro arquivo existente nos diretórios dados.
 

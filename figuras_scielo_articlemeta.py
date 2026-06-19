@@ -46,6 +46,7 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -239,7 +240,7 @@ def fig11_subject_area(df, universo):
 
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_11_subject_area_share.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -270,7 +271,7 @@ def fig12_temporal_subject_area(df):
     ax.set_xlim(min(pivot.index) - 0.2, max(pivot.index) + 2.5)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_12_temporal_subject_area.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -313,7 +314,7 @@ def fig13_heatmap_sa_keyword(df):
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_13_heatmap_sa_keyword.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -349,7 +350,7 @@ def fig14_temporal_total(df):
     ax.legend(loc="upper left", frameon=False)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_14_temporal_total.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -378,7 +379,7 @@ def fig15_idioma(df):
     ax.set_ylim(0, serie.max() * 1.20)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_15_idioma.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -413,7 +414,7 @@ def fig16_top_periodicos(df):
     ax.set_yticklabels([t[:42] + "…" if len(t) > 42 else t for t in serie.index], fontsize=8)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_16_top_periodicos.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -453,7 +454,7 @@ def fig20_top_termos(df):
     ax.set_xlim(0, max(vals) * 1.18)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_20_top_termos.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -485,7 +486,7 @@ def fig21_subcampos_dist(df):
             transform=ax.transAxes, ha="right", fontsize=8, style="italic", color="#555")
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_21_subcampos_distribuicao.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -526,7 +527,7 @@ def fig22_heatmap_subcampo_sa(df):
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_22_heatmap_subcampo_sa.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -550,7 +551,7 @@ def fig23_temporal_subcampos(df):
     ax.legend(loc="upper left", frameon=False, fontsize=8)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_23_temporal_subcampos.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 

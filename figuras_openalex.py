@@ -34,6 +34,7 @@ from utils import (
     FIGURAS_DIR,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -61,9 +62,10 @@ SUB_MAP = {
 
 
 def _salvar(fig, nome: str) -> None:
+    # PNG + SVG; a figura é identificada pelo nome do arquivo (sem título embutido).
     out = os.path.join(garantir_diretorio(FIGURAS_DIR), nome)
     fig.tight_layout()
-    fig.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out, fig)
     plt.close(fig)
     print(f"  -> {out}")
 
@@ -103,7 +105,6 @@ def fig_ranking_paises(top: int = 15) -> None:
     for y, v in enumerate(df["count_ia_hum"]):
         ax.text(v, y, f" {int(v):,}".replace(",", "."), va="center", fontsize=8)
     ax.set_xlabel("Publicações de IA nas Humanidades (2016–2024)")
-    ax.set_title(f"Top {top} países — IA nas Humanidades (OpenAlex; definição conceito)")
     ax.margins(x=0.12)
     _salvar(fig, "openalex_01_ranking_paises.png")
 
@@ -124,7 +125,6 @@ def fig_taxa_interna_paises(top: int = 15) -> None:
     for y, v in enumerate(df["taxa_interna_%"]):
         ax.text(v, y, f" {v:.1f}%", va="center", fontsize=8)
     ax.set_xlabel("Taxa interna: % das Humanidades do país que tocam IA")
-    ax.set_title(f"Penetração da IA nas Humanidades — top {top} produtores")
     ax.margins(x=0.12)
     _salvar(fig, "openalex_02_taxa_interna_paises.png")
 
@@ -150,8 +150,6 @@ def fig_brasil_temporal() -> None:
     ax2.tick_params(axis="y", labelcolor=COR_BRASIL)
     ax2.grid(False)
 
-    ax1.set_title("Brasil — IA nas Humanidades por ano (OpenAlex)\n"
-                  "Atenção: 2024 provavelmente subestimado por indexação incompleta")
     _salvar(fig, "openalex_03_brasil_temporal.png")
 
 
@@ -184,7 +182,6 @@ def fig_subcampos_3bases() -> None:
     ax.set_xticks(x)
     ax.set_xticklabels(SUB_ORDER)
     ax.set_ylabel("% do corpus de IA da base (multi-label)")
-    ax.set_title("Subcampos de IA — comparação entre as três bases")
     ax.legend(fontsize=8)
     _salvar(fig, "openalex_04_subcampos_3bases.png")
 
@@ -214,8 +211,6 @@ def fig_bolha_universo_penetracao(top: int = 40) -> None:
     ax.set_xscale("log")
     ax.set_xlabel("Universo de publicações em Humanidades (escala log)")
     ax.set_ylabel("Taxa interna: % das Humanidades que tocam IA")
-    ax.set_title("Tamanho do campo × penetração da IA nas Humanidades\n"
-                 "(bolha = volume de publicações de IA; Brasil em vermelho)")
     _salvar(fig, "openalex_05_bolha_universo_penetracao.png")
 
 
@@ -246,7 +241,6 @@ def fig_radar_subcampos() -> None:
     _radar(ax, [openalex_sub.get(s, 0) for s in SUB_ORDER], "OpenAlex (Brasil, Humanas)", COR_BRASIL)
     ax.set_xticks(np.linspace(0, 2 * np.pi, len(SUB_ORDER), endpoint=False))
     ax.set_xticklabels(SUB_ORDER)
-    ax.set_title("Perfil de subcampos de IA por fonte (% do corpus IA)", pad=24)
     ax.legend(loc="upper right", bbox_to_anchor=(1.35, 1.12), fontsize=8)
     _salvar(fig, "openalex_06_radar_subcampos.png")
 
@@ -283,8 +277,6 @@ def fig_quadrante_paises(top: int = 40) -> None:
     ax.text(xmin, ymin, "Periféricos", fontsize=9, ha="left", va="bottom", color="gray", style="italic")
     ax.set_xlabel("Volume de publicações de IA nas Humanidades (escala log)")
     ax.set_ylabel("Taxa interna (%)")
-    ax.set_title("Quadrantes: volume × penetração da IA nas Humanidades\n"
-                 "(linhas tracejadas = medianas; Brasil em vermelho)")
     _salvar(fig, "openalex_07_quadrante_paises.png")
 
 
@@ -303,8 +295,6 @@ def fig_trajetoria_brasil() -> None:
                     fontsize=8, xytext=(7, 4), textcoords="offset points")
     ax.set_xlabel("Volume de publicações de IA nas Humanidades")
     ax.set_ylabel("Taxa interna (%)")
-    ax.set_title("Brasil: trajetória em volume × penetração (2016–2024)\n"
-                 "o volume cresce, mas a penetração anda de lado")
     _salvar(fig, "openalex_08_trajetoria_brasil.png")
 
 

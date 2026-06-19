@@ -16,6 +16,7 @@ from utils import (
     CORES_INTERMEDIARIAS,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    salvar_figura,
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,16 +42,10 @@ COR_MEDIANA = CORES_INTERMEDIARIAS[0]
 
 
 def salvar(nome):
-    if nome.startswith('capes'):
-        titulo = 'CAPES'
-    elif nome.startswith('scielo'):
-        titulo = 'SciELO'
-    else:
-        titulo = None
-    if titulo:
-        plt.gca().set_title(titulo, fontsize=14, fontweight='bold', pad=15)
+    # Sem título embutido: a figura é identificada pelo nome do arquivo
+    # (PNG + SVG), e a legenda fica no texto/LaTeX.
     plt.tight_layout()
-    plt.savefig(os.path.join(FIG_DIR, nome), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIG_DIR, nome))
     plt.close()
     print(f"  ✓ {nome}")
 

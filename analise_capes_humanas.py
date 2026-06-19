@@ -36,6 +36,7 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -91,7 +92,7 @@ def figh01_areas_humanas(df: pd.DataFrame) -> None:
     ], loc="lower right", frameon=False, fontsize=8)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h01_areas_humanas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -131,7 +132,7 @@ def figh02_temporal_humanas(df: pd.DataFrame) -> None:
     ax.legend(loc="upper left", frameon=False)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h02_temporal_humanas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -148,7 +149,7 @@ def figh03_top_ies_humanas(df: pd.DataFrame) -> None:
     ax.set_xlim(0, serie.max() * 1.15)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h03_top_ies_humanas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -168,7 +169,7 @@ def figh04_regiao_humanas(df: pd.DataFrame) -> None:
     ax.set_ylim(0, serie.max() * 1.18)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h04_regiao_humanas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -204,7 +205,7 @@ def figh05_top_termos_humanas(df: pd.DataFrame) -> None:
     ax.set_xlim(0, max(vals) * 1.12)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h05_top_termos_humanas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 

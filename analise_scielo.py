@@ -29,6 +29,7 @@ from utils import (
     aplicar_estilo_padrao,
     garantir_diretorio,
     buscar_arquivo,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -394,7 +395,7 @@ Sem menção: {stats["sem_ia"]} ({stats["sem_ia"]/stats["total"]*100:.1f}%)'''
             bbox=props, fontfamily='monospace', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_publicacoes_ano(artigos, output_path):
@@ -432,7 +433,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     
     plt.tight_layout()
     output_v1 = os.path.join(base_dir, '02a_temporal_barras_simples.png')
-    plt.savefig(output_v1, dpi=300, bbox_inches='tight')
+    salvar_figura(output_v1)
     print(f"  ✓ Versão 1 (Barras Simples): {output_v1}")
     
     # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
@@ -464,7 +465,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     
     plt.tight_layout()
     output_v2 = os.path.join(base_dir, '02b_temporal_barras_destaque.png')
-    plt.savefig(output_v2, dpi=300, bbox_inches='tight')
+    salvar_figura(output_v2)
     print(f"  ✓ Versão 2 (Barras Destaque): {output_v2}")
     
     # ===== VERSÃO 3: LINHA - SIMPLES =====
@@ -489,7 +490,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     
     plt.tight_layout()
     output_v3 = os.path.join(base_dir, '02c_temporal_linha_simples.png')
-    plt.savefig(output_v3, dpi=300, bbox_inches='tight')
+    salvar_figura(output_v3)
     print(f"  ✓ Versão 3 (Linha Simples): {output_v3}")
     
     # ===== VERSÃO 4: LINHA - COM ÁREA PREENCHIDA =====
@@ -517,7 +518,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     
     plt.tight_layout()
     output_v4 = os.path.join(base_dir, '02d_temporal_linha_area.png')
-    plt.savefig(output_v4, dpi=300, bbox_inches='tight')
+    salvar_figura(output_v4)
     print(f"  ✓ Versão 4 (Linha com Área): {output_v4}")
     
     print(f"  ✓ 4 versões geradas com sucesso!")
@@ -556,7 +557,7 @@ def criar_grafico_top_journals(artigos, output_path, top_n=10):
     ax.set_xlim(0, max(values) * 1.15)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_outros_journals(artigos, output_path, top_n=10, min_count=2):
@@ -595,7 +596,7 @@ def criar_grafico_outros_journals(artigos, output_path, top_n=10, min_count=2):
     ax.set_xlim(0, max(values) * 1.2)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_idiomas(artigos, output_path):
@@ -625,7 +626,7 @@ def criar_grafico_idiomas(artigos, output_path):
     
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_citavel(dados_csv, output_path):
@@ -654,7 +655,7 @@ def criar_grafico_citavel(dados_csv, output_path):
     
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_indice_citacoes(dados_csv, output_path):
@@ -686,7 +687,7 @@ def criar_grafico_indice_citacoes(dados_csv, output_path):
     ax.set_xlim(0, max(values) * 1.2)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_areas_tematicas(dados_csv, output_path, top_n=10):
@@ -722,7 +723,7 @@ def criar_grafico_areas_tematicas(dados_csv, output_path, top_n=10):
     ax.set_xlim(0, max(values) * 1.15)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_outras_areas(dados_csv, output_path, top_n=10, min_count=3):
@@ -770,7 +771,7 @@ def criar_grafico_outras_areas(dados_csv, output_path, top_n=10, min_count=3):
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 def criar_grafico_categorias_tematicas(categorias, total_ia, output_path):
@@ -805,7 +806,7 @@ def criar_grafico_categorias_tematicas(categorias, total_ia, output_path):
     ax.set_xlim(0, max(values) * 1.15)
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    salvar_figura(output_path)
     print(f"  ✓ Salvo: {output_path}")
 
 # ============================================================================

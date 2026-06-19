@@ -31,6 +31,7 @@ from utils import (
     classificar_foco_ia,
     garantir_diretorio,
     buscar_arquivo,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -342,7 +343,7 @@ try:
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01a_temporal_barras_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01a_temporal_barras_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 1 (Barras Simples) gerada com sucesso")
     
     # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
@@ -369,7 +370,7 @@ try:
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01b_temporal_barras_destaque.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01b_temporal_barras_destaque.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 2 (Barras Destaque) gerada com sucesso")
     
     # ===== VERSÃO 3: LINHA - SIMPLES =====
@@ -391,7 +392,7 @@ try:
     ax.grid(True, alpha=0.3, linestyle='--')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01c_temporal_linha_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01c_temporal_linha_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 3 (Linha Simples) gerada com sucesso")
     
     # ===== VERSÃO 4: LINHA - COM ÁREA PREENCHIDA =====
@@ -417,7 +418,7 @@ try:
     ax.legend(fontsize=11, loc='upper left')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01d_temporal_linha_area.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01d_temporal_linha_area.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 4 (Linha com Área) gerada com sucesso")
     
     print("✓ 4 versões de Evolução Temporal geradas com sucesso")
@@ -447,7 +448,7 @@ try:
                 f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '02_nivel_academico.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '02_nivel_academico.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 2 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 2: {e}")
@@ -488,7 +489,7 @@ try:
 
         plt.tight_layout()
         plt.subplots_adjust(bottom=0.08)
-        plt.savefig(os.path.join(FIGURAS_DIR, '03_todas_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '03_todas_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 3 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para gráfico de áreas")
@@ -531,7 +532,7 @@ try:
 
         plt.tight_layout()
         plt.subplots_adjust(bottom=0.08)
-        plt.savefig(os.path.join(FIGURAS_DIR, '04_todas_instituicoes.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '04_todas_instituicoes.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 4 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para gráfico de instituições")
@@ -562,7 +563,7 @@ try:
                 f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '05_foco_ia.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '05_foco_ia.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 5 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 5: {e}")
@@ -585,7 +586,7 @@ try:
     ax.set_facecolor('white')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '06_evolucao_nivel.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '06_evolucao_nivel.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 6 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 6: {e}")
@@ -613,7 +614,7 @@ try:
         ax.grid(True, alpha=0.3, axis='y', linestyle='--')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '07_distribuicao_paginas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '07_distribuicao_paginas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 7 gerado com sucesso")
     else:
         print("⚠ Sem dados de páginas disponíveis")
@@ -648,7 +649,7 @@ try:
                     f'{int(v)} ({pct:.1f}%)', va='center', fontsize=9, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '08_top10_cidades.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '08_top10_cidades.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 8 gerado com sucesso")
     else:
         print("⚠ Sem dados de cidades disponíveis")
@@ -676,7 +677,7 @@ try:
         ax.set_facecolor('white')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '09_evolucao_top3_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '09_evolucao_top3_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 9 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para top 3 áreas")
