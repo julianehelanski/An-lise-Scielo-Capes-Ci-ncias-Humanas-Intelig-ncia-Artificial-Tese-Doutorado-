@@ -19,10 +19,10 @@ import sys
 from collections import Counter, defaultdict
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from utils import (
     BASE_DIR,
+    CORES_INTERMEDIARIAS,
     DADOS_SCIELO_DIR,
     FIGURAS_DIR,
     RE_IA_FORTE,
@@ -33,6 +33,10 @@ from utils import (
 
 aplicar_estilo_padrao()
 plt.rcParams['figure.max_open_warning'] = 50
+
+# Cores de papel — paleta padrão do projeto (utils.CORES_INTERMEDIARIAS, tab10-muted).
+COR_PRINCIPAL = CORES_INTERMEDIARIAS[3]  # azul: barras/linhas principais
+COR_REALCE = CORES_INTERMEDIARIAS[0]     # vermelho: realce do valor máximo
 
 # ============================================================================
 # CONFIGURAÇÃO DOS ARQUIVOS
@@ -351,7 +355,7 @@ def criar_grafico_foco_ia(stats, output_path):
     
     categorias = ['Foco Principal\nem IA', 'Mencionam IA\n(Tangencial)']
     valores = [stats['about_ai'], stats['tangenciam']]
-    cores = ['#A8D5BA', '#C8E6C9']
+    cores = [CORES_INTERMEDIARIAS[0], CORES_INTERMEDIARIAS[1]]
     
     bars = ax.bar(categorias, valores, color=cores, 
                    edgecolor='black', linewidth=2.5, alpha=0.9)
@@ -406,15 +410,10 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     # Definir diretório base
     base_dir = os.path.dirname(output_path)
     
-    # CORES VERDE PARA SCIELO
-    COR_VERDE_PRINCIPAL = '#66BB6A'  # Verde médio
-    COR_VERDE_ESCURO = '#388E3C'     # Verde escuro
-    COR_VERDE_CLARO = '#81C784'      # Verde claro
-    
     # ===== VERSÃO 1: BARRAS - SIMPLES =====
     fig, ax = plt.subplots(figsize=(16, 8))
     
-    bars = ax.bar(years_sorted, counts, color=COR_VERDE_PRINCIPAL, 
+    bars = ax.bar(years_sorted, counts, color=COR_PRINCIPAL, 
                    edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for bar, count in zip(bars, counts):
@@ -439,13 +438,13 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
     fig, ax = plt.subplots(figsize=(16, 8))
     
-    bars = ax.bar(years_sorted, counts, color=COR_VERDE_CLARO, 
+    bars = ax.bar(years_sorted, counts, color=COR_PRINCIPAL, 
                    edgecolor='black', linewidth=1.5, alpha=0.85)
     
     # Destacar ano com mais publicações
     max_count = max(counts)
     max_idx = counts.index(max_count)
-    bars[max_idx].set_color(COR_VERDE_ESCURO)
+    bars[max_idx].set_color(COR_REALCE)
     bars[max_idx].set_linewidth(2.5)
     bars[max_idx].set_alpha(1.0)
     
@@ -472,7 +471,7 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     fig, ax = plt.subplots(figsize=(16, 8))
     
     ax.plot(years_sorted, counts, marker='o', linewidth=3, markersize=8,
-            color=COR_VERDE_PRINCIPAL, markerfacecolor=COR_VERDE_ESCURO,
+            color=COR_PRINCIPAL, markerfacecolor=COR_REALCE,
             markeredgecolor='black', markeredgewidth=1.5)
     
     for x, y in zip(years_sorted, counts):
@@ -497,10 +496,10 @@ def criar_grafico_publicacoes_ano(artigos, output_path):
     fig, ax = plt.subplots(figsize=(16, 8))
     
     ax.plot(years_sorted, counts, marker='o', linewidth=3, markersize=8,
-            color=COR_VERDE_ESCURO, markerfacecolor=COR_VERDE_PRINCIPAL,
+            color=COR_REALCE, markerfacecolor=COR_PRINCIPAL,
             markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
     
-    ax.fill_between(years_sorted, counts, alpha=0.3, color=COR_VERDE_PRINCIPAL)
+    ax.fill_between(years_sorted, counts, alpha=0.3, color=COR_PRINCIPAL)
     
     for x, y in zip(years_sorted, counts):
         ax.text(x, y + max(counts)*0.02, f'{int(y)}', 
@@ -538,11 +537,10 @@ def criar_grafico_top_journals(artigos, output_path, top_n=10):
     names = [j[0][:60] + '...' if len(j[0]) > 60 else j[0] for j in top]
     values = [j[1] for j in top]
     
-    colors = plt.cm.Blues(np.linspace(0.4, 0.9, len(names)))
-    bars = ax.barh(range(len(names)), values, color=colors, 
+    bars = ax.barh(range(len(names)), values, color=COR_PRINCIPAL,
                     edgecolor='black', linewidth=1.5, alpha=0.85)
-    
-    bars[0].set_color('#FFEB3B')
+
+    bars[0].set_color(COR_REALCE)
     bars[0].set_linewidth(2.5)
     
     for i, (bar, valor) in enumerate(zip(bars, values)):
@@ -581,8 +579,7 @@ def criar_grafico_outros_journals(artigos, output_path, top_n=10, min_count=2):
     names = [j[0][:60] + '...' if len(j[0]) > 60 else j[0] for j in outros]
     values = [j[1] for j in outros]
     
-    colors = plt.cm.Greens(np.linspace(0.4, 0.9, len(names)))
-    bars = ax.barh(range(len(names)), values, color=colors,
+    bars = ax.barh(range(len(names)), values, color=COR_PRINCIPAL,
                     edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for i, (bar, valor) in enumerate(zip(bars, values)):
@@ -613,7 +610,7 @@ def criar_grafico_idiomas(artigos, output_path):
     
     labels = list(lang_counts.keys())
     sizes = list(lang_counts.values())
-    colors = plt.cm.Set3(np.linspace(0, 1, len(labels)))
+    colors = CORES_INTERMEDIARIAS[:len(labels)]
     
     wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%',
                                          colors=colors, startangle=90,
@@ -641,7 +638,7 @@ def criar_grafico_citavel(dados_csv, output_path):
     
     labels = list(citavel.keys())
     sizes = list(citavel.values())
-    colors = ['#66C2A5', '#FC8D62']
+    colors = [CORES_INTERMEDIARIAS[3], CORES_INTERMEDIARIAS[0]]
     explode = (0.05, 0.05)
     
     wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%',
@@ -671,7 +668,7 @@ def criar_grafico_indice_citacoes(dados_csv, output_path):
     
     indices = list(citacoes.keys())
     values = list(citacoes.values())
-    colors = ['#8DD3C7', '#FFFFB3', '#BEBADA'][:len(indices)]
+    colors = CORES_INTERMEDIARIAS[:len(indices)]
     
     bars = ax.barh(range(len(indices)), values, color=colors, 
                     edgecolor='black', linewidth=2, alpha=0.85)
@@ -705,12 +702,11 @@ def criar_grafico_areas_tematicas(dados_csv, output_path, top_n=10):
     
     names = [a[0] for a in top]
     values = [a[1] for a in top]
-    colors = plt.cm.Purples(np.linspace(0.4, 0.9, len(names)))
-    
-    bars = ax.barh(range(len(names)), values, color=colors, 
+
+    bars = ax.barh(range(len(names)), values, color=COR_PRINCIPAL,
                     edgecolor='black', linewidth=1.5, alpha=0.85)
-    
-    bars[0].set_color('#FFEB3B')
+
+    bars[0].set_color(COR_REALCE)
     bars[0].set_linewidth(2.5)
     
     for i, (bar, valor) in enumerate(zip(bars, values)):
@@ -747,9 +743,8 @@ def criar_grafico_outras_areas(dados_csv, output_path, top_n=10, min_count=3):
     
     names = [a[0] for a in outras]
     values = [a[1] for a in outras]
-    colors = plt.cm.Purples(np.linspace(0.4, 0.9, len(names)))
-    
-    bars = ax.barh(range(len(names)), values, color=colors,
+
+    bars = ax.barh(range(len(names)), values, color=COR_PRINCIPAL,
                     edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for i, (bar, valor) in enumerate(zip(bars, values)):
@@ -792,7 +787,7 @@ def criar_grafico_categorias_tematicas(categorias, total_ia, output_path):
     
     labels = [c[0] for c in sorted_cats]
     values = [len(c[1]) for c in sorted_cats]
-    colors = plt.cm.Set3(np.linspace(0, 1, len(labels)))
+    colors = CORES_INTERMEDIARIAS[:len(labels)]
     
     bars = ax.barh(range(len(labels)), values, color=colors,
                     edgecolor='black', linewidth=2, alpha=0.9)

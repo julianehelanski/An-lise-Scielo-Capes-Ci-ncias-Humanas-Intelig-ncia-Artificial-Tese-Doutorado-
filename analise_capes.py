@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib import cm
 
 from utils import (
     BASE_DIR,
@@ -320,17 +319,16 @@ print("="*80)
 # GRÁFICO 1: Evolução Temporal - 4 VERSÕES PADRONIZADAS
 print("\n📊 Gráfico 1/9: Evolução Temporal das Publicações (4 versões)")
 
-# CORES ROXO PARA CAPES
-COR_ROXO_PRINCIPAL = '#9C27B0'  # Roxo médio
-COR_ROXO_ESCURO = '#6A1B9A'     # Roxo escuro
-COR_ROXO_CLARO = '#BA68C8'      # Roxo claro
+# Cores principais (paleta tab10-muted do projeto, em utils.CORES_INTERMEDIARIAS)
+COR_PRINCIPAL = CORES_INTERMEDIARIAS[3]  # azul: barras/linhas principais
+COR_REALCE = CORES_INTERMEDIARIAS[0]     # vermelho: realce do valor máximo
 
 try:
     # ===== VERSÃO 1: BARRAS - SIMPLES =====
     fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
     
     bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
-                  color=COR_ROXO_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
+                  color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for bar, row in zip(bars, pub_por_ano.itertuples()):
         ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
@@ -351,11 +349,11 @@ try:
     fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
     
     bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
-                  color=COR_ROXO_CLARO, edgecolor='black', linewidth=1.5, alpha=0.85)
+                  color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
     
     # Destacar ano com mais publicações
     max_idx = pub_por_ano['quantidade'].idxmax()
-    bars[max_idx].set_color(COR_ROXO_ESCURO)
+    bars[max_idx].set_color(COR_REALCE)
     bars[max_idx].set_linewidth(2.5)
     bars[max_idx].set_alpha(1.0)
     
@@ -379,7 +377,7 @@ try:
     
     ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
             marker='o', linewidth=3, markersize=8, 
-            color=COR_ROXO_PRINCIPAL, markerfacecolor=COR_ROXO_ESCURO,
+            color=COR_PRINCIPAL, markerfacecolor=COR_REALCE,
             markeredgecolor='black', markeredgewidth=1.5)
 
     for i, row in pub_por_ano.iterrows():
@@ -401,11 +399,11 @@ try:
     
     ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
             marker='o', linewidth=3, markersize=8, 
-            color=COR_ROXO_ESCURO, markerfacecolor=COR_ROXO_PRINCIPAL,
+            color=COR_REALCE, markerfacecolor=COR_PRINCIPAL,
             markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
     
     ax.fill_between(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
-                    alpha=0.3, color=COR_ROXO_PRINCIPAL)
+                    alpha=0.3, color=COR_PRINCIPAL)
 
     for i, row in pub_por_ano.iterrows():
         ax.text(row['ano_defesa'], row['quantidade'] + pub_por_ano['quantidade'].max()*0.02, 
@@ -462,11 +460,9 @@ try:
 
         areas_display = areas_freq_maior_1.copy()
         N = len(areas_display)
-        cmap = cm.get_cmap('Purples_r', N + 5)
-        cores = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), areas_display.values,
-                       color=cores, edgecolor='black', linewidth=1.2)
+                       color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 
         ax.set_yticks(range(N))
         ax.set_yticklabels(areas_display.index, fontsize=9)
@@ -507,11 +503,9 @@ try:
 
         inst_display = inst_freq_maior_1.copy()
         N = len(inst_display)
-        cmap = cm.get_cmap('Blues_r', N + 5)
-        cores_inst = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), inst_display.values,
-                       color=cores_inst, edgecolor='black', linewidth=1.2)
+                       color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 
         ax.set_yticks(range(N))
         ax.set_yticklabels(inst_display.index, fontsize=9)
@@ -635,11 +629,9 @@ try:
         fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
 
         N = len(top10_cidades)
-        cmap = cm.get_cmap('Greens_r', N + 5)
-        cores_cidades = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), top10_cidades.values,
-                       color=cores_cidades, 
+                       color=COR_PRINCIPAL,
                        edgecolor='black', linewidth=1.5)
 
         ax.set_yticks(range(N))
