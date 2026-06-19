@@ -7,6 +7,13 @@
 %  Números: ver docs/decisoes_metodologicas.md, bloco IV (fonte canônica).
 %
 %  Convenções (idênticas às do inventario_figuras_capes.md):
+%   - As figuras NÃO trazem título embutido na imagem: a identificação é feita
+%     pelo nome do arquivo e pela \caption{}. As ressalvas analíticas que antes
+%     apareciam no título (p. ex. "2024 subindexado", "linhas tracejadas =
+%     medianas", "escala limitada a 10%+") estão incorporadas às legendas abaixo.
+%   - Toda figura é gerada em dois formatos de mesmo nome-base: .png (raster,
+%     300 dpi, usado no \includegraphics) e .svg (vetorial). Troque a extensão
+%     se preferir o SVG (requer suporte a SVG no fluxo LaTeX).
 %   - \label segue o padrão fig:openalex_NN_descritor (autoref/Cref).
 %   - \fonte{...} é o comando comum em teses brasileiras (abnTeX2/ABNT);
 %     se o seu template não o definir, troque por \source{}, \floatfoot{}
@@ -222,11 +229,11 @@ ainda não reconfigurara a produção das Humanidades no período.
   \centering
   \includegraphics[width=0.95\linewidth]{figuras/openalex_07_quadrante_paises.png}
   \caption{Quadrantes definidos pelas medianas de volume (eixo horizontal,
-  logarítmico) e de taxa interna (eixo vertical) entre os quarenta maiores
-  produtores de IA nas Humanidades, 2016--2024. Os quatro quadrantes distinguem
-  países líderes, de nicho, ``gigantes latentes'' e periféricos. O Brasil,
-  destacado, posiciona-se entre os ``gigantes latentes'': alto volume, baixa
-  penetração.}
+  logarítmico) e de taxa interna (eixo vertical) --- marcadas pelas linhas
+  tracejadas --- entre os quarenta maiores produtores de IA nas Humanidades,
+  2016--2024. Os quatro quadrantes distinguem países líderes, de nicho,
+  ``gigantes latentes'' e periféricos. O Brasil, destacado em vermelho,
+  posiciona-se entre os ``gigantes latentes'': alto volume, baixa penetração.}
   \label{fig:openalex_07_quadrante_paises}
   \fonte{Elaboração própria a partir do OpenAlex (2016--2024).}
 \end{figure}

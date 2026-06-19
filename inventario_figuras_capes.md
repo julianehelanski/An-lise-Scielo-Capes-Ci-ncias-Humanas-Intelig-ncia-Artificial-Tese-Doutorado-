@@ -9,6 +9,7 @@ Documento de apoio para a redação do Capítulo 2 da tese. Para cada figura, co
 Convenções adotadas:
 
 - Todas as figuras vêm do dump oficial CAPES `BR-CAPES-BTD-2021A2024-2025-12-01` (versão 3.0, gerado 24/11/2025), totalizando 350.071 trabalhos de conclusão de pós-graduação stricto sensu, dos quais 12.995 foram identificados no corpus "Tecnologias de IA, ML e aprendizado profundo" pelo classificador refinado.
+- **As figuras não trazem título embutido na imagem**: a identificação é feita pelo nome do arquivo e pela `\caption{}` abaixo. Toda figura é gerada em **dois formatos com o mesmo nome-base** — `.png` (raster, 300 dpi, para `\includegraphics`) e `.svg` (vetorial, para edição ou saída vetorial). Os blocos abaixo usam o `.png`; troque a extensão se preferir o `.svg` (requer suporte a SVG no seu fluxo LaTeX, p. ex. `svg`/Inkscape).
 - O `\source{...}` usa o comando comum em teses brasileiras; troque por `\fonte{}`, `\floatfoot{}` ou similar conforme o template do PPGAS-USP.
 - As `\label{}` seguem o padrão `fig:capes_NN_descritor` para fácil referência via `\autoref{}` ou `\Cref{}`.
 - O ambiente assume `\usepackage{graphicx}` e largura padrão `0.95\linewidth` — ajuste conforme o layout.
@@ -70,6 +71,8 @@ Convenções adotadas:
 ```
 
 **Comentário analítico.** Esta figura revela a **assinatura discursiva** de cada grande área. Humanas conversam com o campo via "IA" e termos correlatos (ChatGPT, IA generativa), mas raramente via termos técnicos (redes neurais, deep learning). Engenharias têm o padrão inverso. Útil para fundamentar a tese de que "IA" significa coisas diferentes em diferentes áreas, mesmo quando a contagem agregada parece uniforme.
+
+> **Ressalva de dados (importante para regerar).** Esta é a única figura cujas **contagens absolutas dependem do resumo** (`DS_RESUMO`): o texto de busca das *keywords* é montado a partir de título + palavras-chave + resumo. A versão canônica usa `dados_capes/capes_2021_2024_ia.csv` (com resumo). Se o script `figuras_capes_2021_2024.py` for rodado apenas com o fallback `capes_2021_2024_ia_auditoria.xlsx` (sem a coluna de resumo), os **valores absolutos caem ~40–50%** (as proporções por área se mantêm), pois muitos *matches* vêm do resumo. As demais figuras CAPES não usam o resumo e não são afetadas. Garanta a presença do `.csv` completo antes de regerar esta figura.
 
 ---
 
