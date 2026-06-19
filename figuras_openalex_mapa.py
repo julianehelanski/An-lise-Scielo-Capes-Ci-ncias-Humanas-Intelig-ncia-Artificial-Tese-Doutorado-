@@ -109,16 +109,14 @@ def main() -> None:
         },
         missing_kwds={"color": "#ECECEC", "label": "Sem dados"},
     )
-    ax.set_title(
-        "Penetração da IA nas Humanidades por país (taxa interna, 2016–2024)\n"
-        f"escala limitada a {TETO_COR:.0f}%+ para contraste; cinza = sem dados",
-        fontsize=12,
-    )
     ax.set_axis_off()
 
+    # Sem título embutido: a figura é identificada pelo nome do arquivo (PNG + SVG).
     os.makedirs(FIGURAS_DIR, exist_ok=True)
-    out = os.path.join(FIGURAS_DIR, "openalex_09_mapa_taxa_interna.png")
+    base = os.path.join(FIGURAS_DIR, "openalex_09_mapa_taxa_interna")
+    out = base + ".png"
     fig.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    fig.savefig(base + ".svg", bbox_inches="tight", facecolor="white")
     plt.close(fig)
     n = merged["taxa_interna_%"].notna().sum()
     print(f"  -> {out}  ({n} países com dados no mapa)")

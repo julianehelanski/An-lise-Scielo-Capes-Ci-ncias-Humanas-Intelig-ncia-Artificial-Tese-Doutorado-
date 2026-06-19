@@ -10,64 +10,44 @@ Salva todas as figuras em PNG na pasta `figuras/`.
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-import matplotlib
+
+from utils import (
+    FIGURAS_DIR,
+    CORES_INTERMEDIARIAS,
+    aplicar_estilo_padrao,
+    garantir_diretorio,
+    salvar_figura,
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FIG_DIR = os.path.join(BASE_DIR, 'figuras')
+FIG_DIR = garantir_diretorio(FIGURAS_DIR)
 CAPES_XLSX = os.path.join(BASE_DIR, 'dados_capes', 'resultados_detalhados_capes.xlsx')
 SCIELO_XLSX = os.path.join(BASE_DIR, 'dados_scielo', 'resultados_detalhados_scielo.xlsx')
-os.makedirs(FIG_DIR, exist_ok=True)
 
-sns.set_style("whitegrid")
-plt.rcParams.update({
-    'figure.facecolor': 'white',
-    'axes.facecolor': 'white',
-    'savefig.facecolor': 'white',
-    'savefig.dpi': 300,
-    'font.size': 10,
-    'axes.titleweight': 'bold',
-})
+# Estilo único do projeto (defaults do matplotlib + paleta tab10-muted).
+aplicar_estilo_padrao()
 
-CORES_INTERMEDIARIAS = [
-    '#E57373', '#FFB74D', '#81C784', '#64B5F6', '#BA68C8',
-    '#FFF176', '#F06292', '#4DB6AC', '#A1887F', '#90A4AE',
-    '#B0BEC5', '#E0E0E0',
-]
+# Cores de papel — todas dentro da paleta padrão (utils.CORES_INTERMEDIARIAS),
+# sem esquemas roxo/verde próprios nem gradientes arco-íris.
+COR_PRINCIPAL = CORES_INTERMEDIARIAS[3]   # azul: barras/linhas principais
+COR_REALCE = CORES_INTERMEDIARIAS[0]      # vermelho: realce (máximo, mediana)
+COR_NEUTRA = CORES_INTERMEDIARIAS[10]     # cinza claro
 COR_AZUL = CORES_INTERMEDIARIAS[3]
 COR_MESTRADO = CORES_INTERMEDIARIAS[3]
 COR_DOUTORADO = CORES_INTERMEDIARIAS[1]
 COR_IA_CENTRAL = CORES_INTERMEDIARIAS[0]
 COR_IA_REL = CORES_INTERMEDIARIAS[1]
-COR_IA_OUTROS = CORES_INTERMEDIARIAS[3]
+COR_IA_OUTROS = CORES_INTERMEDIARIAS[9]
 COR_MEDIANA = CORES_INTERMEDIARIAS[0]
-
-COR_ROXO = '#9C27B0'
-COR_ROXO_ESC = '#6A1B9A'
-COR_ROXO_CLA = '#BA68C8'
-COR_VERDE = '#66BB6A'
-COR_VERDE_ESC = '#388E3C'
-COR_VERDE_CLA = '#81C784'
 
 
 def salvar(nome):
-    if nome.startswith('capes'):
-        titulo = 'CAPES'
-    elif nome.startswith('scielo'):
-        titulo = 'SciELO'
-    else:
-        titulo = None
-    if titulo:
-        plt.gca().set_title(titulo, fontsize=14, fontweight='bold', pad=15)
+    # Sem título embutido: a figura é identificada pelo nome do arquivo
+    # (PNG + SVG), e a legenda fica no texto/LaTeX.
     plt.tight_layout()
-    plt.savefig(os.path.join(FIG_DIR, nome), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIG_DIR, nome))
     plt.close()
     print(f"  ✓ {nome}")
-
-
-def get_cmap(name, n):
-    return matplotlib.colormaps.get_cmap(name).resampled(n)
 
 
 # =============================================================================
@@ -105,7 +85,7 @@ qtd = capes_pub['quantidade'].astype(int).tolist()
 
 # 01a — Temporal barras simples
 fig, ax = plt.subplots(figsize=(12, 7))
-bars = ax.bar(anos, qtd, color=COR_ROXO, edgecolor='black', linewidth=1.5, alpha=0.85)
+bars = ax.bar(anos, qtd, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
 for b, v in zip(bars, qtd):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height(), str(v),
             ha='center', va='bottom', fontweight='bold', fontsize=10)
@@ -116,9 +96,9 @@ salvar('capes_01a_temporal_barras_simples.png')
 
 # 01b — Barras com destaque
 fig, ax = plt.subplots(figsize=(12, 7))
-bars = ax.bar(anos, qtd, color=COR_ROXO_CLA, edgecolor='black', linewidth=1.5, alpha=0.85)
+bars = ax.bar(anos, qtd, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
 idx_max = qtd.index(max(qtd))
-bars[idx_max].set_color(COR_ROXO_ESC); bars[idx_max].set_alpha(1.0)
+bars[idx_max].set_color(COR_REALCE); bars[idx_max].set_alpha(1.0)
 for b, v in zip(bars, qtd):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height(), str(v),
             ha='center', va='bottom', fontweight='bold', fontsize=10)
@@ -129,8 +109,8 @@ salvar('capes_01b_temporal_barras_destaque.png')
 
 # 01c — Linha simples
 fig, ax = plt.subplots(figsize=(12, 7))
-ax.plot(anos, qtd, marker='o', linewidth=3, markersize=9, color=COR_ROXO,
-        markerfacecolor=COR_ROXO_ESC, markeredgecolor='black', markeredgewidth=1.5)
+ax.plot(anos, qtd, marker='o', linewidth=3, markersize=9, color=COR_PRINCIPAL,
+        markerfacecolor=COR_REALCE, markeredgecolor='black', markeredgewidth=1.5)
 for x, y in zip(anos, qtd):
     ax.text(x, y + max(qtd) * 0.02, str(y), ha='center', va='bottom', fontweight='bold', fontsize=10)
 ax.set_xlabel('Ano de Defesa'); ax.set_ylabel('Quantidade de Publicações')
@@ -140,9 +120,9 @@ salvar('capes_01c_temporal_linha_simples.png')
 
 # 01d — Linha com área
 fig, ax = plt.subplots(figsize=(12, 7))
-ax.plot(anos, qtd, marker='o', linewidth=3, markersize=9, color=COR_ROXO_ESC,
-        markerfacecolor=COR_ROXO, markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
-ax.fill_between(anos, qtd, alpha=0.3, color=COR_ROXO)
+ax.plot(anos, qtd, marker='o', linewidth=3, markersize=9, color=COR_PRINCIPAL,
+        markerfacecolor=COR_REALCE, markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
+ax.fill_between(anos, qtd, alpha=0.3, color=COR_PRINCIPAL)
 for x, y in zip(anos, qtd):
     ax.text(x, y + max(qtd) * 0.02, str(y), ha='center', va='bottom', fontweight='bold', fontsize=10)
 ax.set_xlabel('Ano de Defesa'); ax.set_ylabel('Quantidade de Publicações')
@@ -168,9 +148,7 @@ areas_2 = capes_areas[capes_areas['Quantidade'] > 1].sort_values('Quantidade', a
 areas_1 = capes_areas[capes_areas['Quantidade'] == 1]
 N = len(areas_2)
 fig, ax = plt.subplots(figsize=(14, max(8, N * 0.5)))
-cmap = get_cmap('Purples_r', N + 5)
-cores = [cmap(i) for i in range(N)]
-bars = ax.barh(range(N), areas_2['Quantidade'].values, color=cores, edgecolor='black', linewidth=1.2)
+bars = ax.barh(range(N), areas_2['Quantidade'].values, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 ax.set_yticks(range(N))
 ax.set_yticklabels(areas_2['area_normalizada'].values, fontsize=9)
 ax.invert_yaxis()
@@ -205,9 +183,7 @@ salvar('capes_04_foco_ia.png')
 top_inst = capes_inst.head(15)
 N = len(top_inst)
 fig, ax = plt.subplots(figsize=(14, max(8, N * 0.45)))
-cmap = get_cmap('Blues_r', N + 5)
-cores_i = [cmap(i) for i in range(N)]
-bars = ax.barh(range(N), top_inst['Quantidade'].values, color=cores_i, edgecolor='black', linewidth=1.2)
+bars = ax.barh(range(N), top_inst['Quantidade'].values, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 ax.set_yticks(range(N))
 ax.set_yticklabels(top_inst['instituicao'].values, fontsize=9)
 ax.invert_yaxis()
@@ -252,9 +228,7 @@ if 'cidade' in capes_dataset.columns:
     cidades = capes_dataset['cidade'].fillna('NÃO ESPECIFICADA').value_counts().head(10)
     N = len(cidades)
     fig, ax = plt.subplots(figsize=(12, 7))
-    cmap = get_cmap('Greens_r', N + 5)
-    cores_c = [cmap(i) for i in range(N)]
-    bars = ax.barh(range(N), cidades.values, color=cores_c, edgecolor='black', linewidth=1.5)
+    bars = ax.barh(range(N), cidades.values, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5)
     ax.set_yticks(range(N))
     ax.set_yticklabels(cidades.index, fontsize=10)
     ax.invert_yaxis()
@@ -270,9 +244,7 @@ if 'cidade' in capes_dataset.columns:
 fig, ax = plt.subplots(figsize=(12, 8))
 top_termos = capes_termos.head(15)
 N = len(top_termos)
-cmap = get_cmap('Oranges_r', N + 5)
-cores_t = [cmap(i) for i in range(N)]
-bars = ax.barh(range(N), top_termos['Frequência'].values, color=cores_t, edgecolor='black', linewidth=1.2)
+bars = ax.barh(range(N), top_termos['Frequência'].values, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 ax.set_yticks(range(N))
 ax.set_yticklabels(top_termos['Termo'].values, fontsize=10)
 ax.invert_yaxis()
@@ -308,7 +280,7 @@ qtd_s = scielo_pub['quantidade'].astype(int).tolist()
 
 # 01a — Barras simples
 fig, ax = plt.subplots(figsize=(16, 8))
-bars = ax.bar(anos_s, qtd_s, color=COR_VERDE, edgecolor='black', linewidth=1.5, alpha=0.85)
+bars = ax.bar(anos_s, qtd_s, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
 for b, v in zip(bars, qtd_s):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height(), str(v),
             ha='center', va='bottom', fontweight='bold', fontsize=9)
@@ -320,9 +292,9 @@ salvar('scielo_01a_temporal_barras_simples.png')
 
 # 01b — Barras com destaque
 fig, ax = plt.subplots(figsize=(16, 8))
-bars = ax.bar(anos_s, qtd_s, color=COR_VERDE_CLA, edgecolor='black', linewidth=1.5, alpha=0.85)
+bars = ax.bar(anos_s, qtd_s, color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
 idx_max = qtd_s.index(max(qtd_s))
-bars[idx_max].set_color(COR_VERDE_ESC); bars[idx_max].set_alpha(1.0)
+bars[idx_max].set_color(COR_REALCE); bars[idx_max].set_alpha(1.0)
 for b, v in zip(bars, qtd_s):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height(), str(v),
             ha='center', va='bottom', fontweight='bold', fontsize=9)
@@ -335,7 +307,7 @@ salvar('scielo_01b_temporal_barras_destaque.png')
 # 01c — Linha simples
 fig, ax = plt.subplots(figsize=(16, 8))
 ax.plot(anos_s, qtd_s, marker='o', linewidth=3, markersize=9,
-        color=COR_VERDE, markerfacecolor=COR_VERDE_ESC, markeredgecolor='black', markeredgewidth=1.5)
+        color=COR_PRINCIPAL, markerfacecolor=COR_REALCE, markeredgecolor='black', markeredgewidth=1.5)
 for x, y in zip(anos_s, qtd_s):
     ax.text(x, y + max(qtd_s) * 0.02, str(y), ha='center', va='bottom',
             fontweight='bold', fontsize=9)
@@ -347,9 +319,9 @@ salvar('scielo_01c_temporal_linha_simples.png')
 # 01d — Linha com área
 fig, ax = plt.subplots(figsize=(16, 8))
 ax.plot(anos_s, qtd_s, marker='o', linewidth=3, markersize=9,
-        color=COR_VERDE_ESC, markerfacecolor=COR_VERDE, markeredgecolor='black',
+        color=COR_PRINCIPAL, markerfacecolor=COR_REALCE, markeredgecolor='black',
         markeredgewidth=1.5, label='Publicações')
-ax.fill_between(anos_s, qtd_s, alpha=0.3, color=COR_VERDE)
+ax.fill_between(anos_s, qtd_s, alpha=0.3, color=COR_PRINCIPAL)
 for x, y in zip(anos_s, qtd_s):
     ax.text(x, y + max(qtd_s) * 0.02, str(y), ha='center', va='bottom',
             fontweight='bold', fontsize=9)
@@ -363,10 +335,9 @@ salvar('scielo_01d_temporal_linha_area.png')
 top_per = scielo_per.head(15)
 N = len(top_per)
 fig, ax = plt.subplots(figsize=(14, max(9, N * 0.5)))
-cores_p = plt.cm.Blues(np.linspace(0.4, 0.9, N))
-bars = ax.barh(range(N), top_per['quantidade'].values, color=cores_p,
+bars = ax.barh(range(N), top_per['quantidade'].values, color=COR_PRINCIPAL,
                edgecolor='black', linewidth=1.5, alpha=0.9)
-bars[0].set_color('#FFEB3B'); bars[0].set_linewidth(2.5)
+bars[0].set_color(COR_REALCE); bars[0].set_linewidth(2.5)
 nomes = [n.replace('&amp;', '&') for n in top_per['periodico'].values]
 nomes = [n if len(n) <= 60 else n[:57] + '...' for n in nomes]
 for i, (b, v) in enumerate(zip(bars, top_per['quantidade'].values)):
@@ -386,8 +357,7 @@ outros_2 = outros_per[outros_per['quantidade'] >= 2]
 if len(outros_2) > 0:
     N = len(outros_2)
     fig, ax = plt.subplots(figsize=(14, max(8, N * 0.4)))
-    cores_o = plt.cm.Greens(np.linspace(0.4, 0.9, N))
-    bars = ax.barh(range(N), outros_2['quantidade'].values, color=cores_o,
+    bars = ax.barh(range(N), outros_2['quantidade'].values, color=COR_PRINCIPAL,
                    edgecolor='black', linewidth=1.5, alpha=0.9)
     nomes_o = [n.replace('&amp;', '&') for n in outros_2['periodico'].values]
     nomes_o = [n if len(n) <= 60 else n[:57] + '...' for n in nomes_o]
@@ -405,7 +375,7 @@ if len(outros_2) > 0:
 # 04 — Citável vs Não citável
 fig, ax = plt.subplots(figsize=(10, 8))
 labels = scielo_cit['categoria'].tolist(); sizes = scielo_cit['quantidade'].tolist()
-cores_pie = ['#66C2A5', '#FC8D62']
+cores_pie = [CORES_INTERMEDIARIAS[3], CORES_INTERMEDIARIAS[0]]
 wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=cores_pie,
                                    startangle=90, explode=(0.05, 0.05),
                                    textprops={'fontsize': 13, 'fontweight': 'bold'})
@@ -419,7 +389,7 @@ salvar('scielo_04_citavel.png')
 fig, ax = plt.subplots(figsize=(11, 7))
 labels = scielo_tipo['tipo_literatura'].tolist()
 vals = scielo_tipo['quantidade'].tolist()
-cores_lit = plt.cm.Set2(np.linspace(0, 1, len(labels)))
+cores_lit = CORES_INTERMEDIARIAS[:len(labels)]
 bars = ax.bar(labels, vals, color=cores_lit, edgecolor='black', linewidth=1.5)
 for b, v in zip(bars, vals):
     pct = v / sum(vals) * 100
@@ -436,7 +406,7 @@ recentes = scielo_pub[scielo_pub['ano_publicacao'] >= 2020]['quantidade'].sum()
 antigos = scielo_pub[scielo_pub['ano_publicacao'] < 2020]['quantidade'].sum()
 labels = ['Antes de 2020', '2020 em diante']
 vals = [antigos, recentes]
-cores_c = [CORES_INTERMEDIARIAS[10], COR_VERDE]
+cores_c = [COR_NEUTRA, COR_PRINCIPAL]
 bars = ax.bar(labels, vals, color=cores_c, edgecolor='black', linewidth=2)
 for b, v in zip(bars, vals):
     pct = v / total_scielo * 100

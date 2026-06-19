@@ -40,6 +40,7 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -161,7 +162,7 @@ def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> No
 
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_11_grande_area_share.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -201,7 +202,7 @@ def fig12_temporal_grande_area(df: pd.DataFrame) -> None:
     ax.set_xlim(min(pivot.index) - 0.2, max(pivot.index) + 2.2)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_12_temporal_grande_area.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -247,7 +248,7 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_13_heatmap_area_keyword.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -285,7 +286,7 @@ def fig14_temporal_total(df: pd.DataFrame) -> None:
     ax.legend(loc="upper left", frameon=False)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_14_temporal_total.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -308,7 +309,7 @@ def fig15_nivel_academico(df: pd.DataFrame) -> None:
     ax.set_ylim(0, serie.max() * 1.18)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_15_nivel_academico.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -345,7 +346,7 @@ def fig16_top_areas_conhecimento(df: pd.DataFrame) -> None:
     ax.legend(handles=legend_handles, loc="lower right", frameon=False, fontsize=8)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_16_top_areas_conhecimento.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -366,7 +367,7 @@ def fig17_top_instituicoes(df: pd.DataFrame) -> None:
     ax.set_xlim(0, serie.max() * 1.12)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_17_top_instituicoes.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -396,7 +397,7 @@ def fig18_regiao_uf(df: pd.DataFrame) -> None:
     ax2.set_ylim(0, uf.max() * 1.15)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_18_regiao_uf.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -417,7 +418,7 @@ def fig19_paginas(df: pd.DataFrame) -> None:
     ax.legend(frameon=False)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_19_paginas.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -461,7 +462,7 @@ def fig20_top_termos(df: pd.DataFrame) -> None:
     ax.set_xlim(0, max(vals) * 1.12)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_20_top_termos.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -524,7 +525,7 @@ def fig21_subcampos_distribuicao(df: pd.DataFrame) -> None:
             transform=ax.transAxes, ha="right", fontsize=8, style="italic", color="#555")
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_21_subcampos_distribuicao.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -566,7 +567,7 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_22_heatmap_subcampo_grande_area.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 
@@ -593,7 +594,7 @@ def fig23_temporal_subcampos(df: pd.DataFrame) -> None:
     ax.legend(loc="upper left", frameon=False, fontsize=9)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_23_temporal_subcampos.png")
-    plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
+    salvar_figura(out)
     plt.close(fig)
     print(f"  → {out}")
 

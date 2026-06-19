@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib import cm
 
 from utils import (
     BASE_DIR,
@@ -32,6 +31,7 @@ from utils import (
     classificar_foco_ia,
     garantir_diretorio,
     buscar_arquivo,
+    salvar_figura,
 )
 
 aplicar_estilo_padrao()
@@ -320,17 +320,16 @@ print("="*80)
 # GRÁFICO 1: Evolução Temporal - 4 VERSÕES PADRONIZADAS
 print("\n📊 Gráfico 1/9: Evolução Temporal das Publicações (4 versões)")
 
-# CORES ROXO PARA CAPES
-COR_ROXO_PRINCIPAL = '#9C27B0'  # Roxo médio
-COR_ROXO_ESCURO = '#6A1B9A'     # Roxo escuro
-COR_ROXO_CLARO = '#BA68C8'      # Roxo claro
+# Cores principais (paleta tab10-muted do projeto, em utils.CORES_INTERMEDIARIAS)
+COR_PRINCIPAL = CORES_INTERMEDIARIAS[3]  # azul: barras/linhas principais
+COR_REALCE = CORES_INTERMEDIARIAS[0]     # vermelho: realce do valor máximo
 
 try:
     # ===== VERSÃO 1: BARRAS - SIMPLES =====
     fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
     
     bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
-                  color=COR_ROXO_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
+                  color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
     
     for bar, row in zip(bars, pub_por_ano.itertuples()):
         ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
@@ -344,18 +343,18 @@ try:
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01a_temporal_barras_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01a_temporal_barras_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 1 (Barras Simples) gerada com sucesso")
     
     # ===== VERSÃO 2: BARRAS - COM DESTAQUE =====
     fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
     
     bars = ax.bar(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'],
-                  color=COR_ROXO_CLARO, edgecolor='black', linewidth=1.5, alpha=0.85)
+                  color=COR_PRINCIPAL, edgecolor='black', linewidth=1.5, alpha=0.85)
     
     # Destacar ano com mais publicações
     max_idx = pub_por_ano['quantidade'].idxmax()
-    bars[max_idx].set_color(COR_ROXO_ESCURO)
+    bars[max_idx].set_color(COR_REALCE)
     bars[max_idx].set_linewidth(2.5)
     bars[max_idx].set_alpha(1.0)
     
@@ -371,7 +370,7 @@ try:
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01b_temporal_barras_destaque.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01b_temporal_barras_destaque.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 2 (Barras Destaque) gerada com sucesso")
     
     # ===== VERSÃO 3: LINHA - SIMPLES =====
@@ -379,7 +378,7 @@ try:
     
     ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
             marker='o', linewidth=3, markersize=8, 
-            color=COR_ROXO_PRINCIPAL, markerfacecolor=COR_ROXO_ESCURO,
+            color=COR_PRINCIPAL, markerfacecolor=COR_REALCE,
             markeredgecolor='black', markeredgewidth=1.5)
 
     for i, row in pub_por_ano.iterrows():
@@ -393,7 +392,7 @@ try:
     ax.grid(True, alpha=0.3, linestyle='--')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01c_temporal_linha_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01c_temporal_linha_simples.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 3 (Linha Simples) gerada com sucesso")
     
     # ===== VERSÃO 4: LINHA - COM ÁREA PREENCHIDA =====
@@ -401,11 +400,11 @@ try:
     
     ax.plot(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
             marker='o', linewidth=3, markersize=8, 
-            color=COR_ROXO_ESCURO, markerfacecolor=COR_ROXO_PRINCIPAL,
+            color=COR_REALCE, markerfacecolor=COR_PRINCIPAL,
             markeredgecolor='black', markeredgewidth=1.5, label='Publicações')
     
     ax.fill_between(pub_por_ano['ano_defesa'], pub_por_ano['quantidade'], 
-                    alpha=0.3, color=COR_ROXO_PRINCIPAL)
+                    alpha=0.3, color=COR_PRINCIPAL)
 
     for i, row in pub_por_ano.iterrows():
         ax.text(row['ano_defesa'], row['quantidade'] + pub_por_ano['quantidade'].max()*0.02, 
@@ -419,7 +418,7 @@ try:
     ax.legend(fontsize=11, loc='upper left')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '01d_temporal_linha_area.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '01d_temporal_linha_area.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Versão 4 (Linha com Área) gerada com sucesso")
     
     print("✓ 4 versões de Evolução Temporal geradas com sucesso")
@@ -449,7 +448,7 @@ try:
                 f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '02_nivel_academico.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '02_nivel_academico.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 2 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 2: {e}")
@@ -462,11 +461,9 @@ try:
 
         areas_display = areas_freq_maior_1.copy()
         N = len(areas_display)
-        cmap = cm.get_cmap('Purples_r', N + 5)
-        cores = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), areas_display.values,
-                       color=cores, edgecolor='black', linewidth=1.2)
+                       color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 
         ax.set_yticks(range(N))
         ax.set_yticklabels(areas_display.index, fontsize=9)
@@ -492,7 +489,7 @@ try:
 
         plt.tight_layout()
         plt.subplots_adjust(bottom=0.08)
-        plt.savefig(os.path.join(FIGURAS_DIR, '03_todas_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '03_todas_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 3 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para gráfico de áreas")
@@ -507,11 +504,9 @@ try:
 
         inst_display = inst_freq_maior_1.copy()
         N = len(inst_display)
-        cmap = cm.get_cmap('Blues_r', N + 5)
-        cores_inst = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), inst_display.values,
-                       color=cores_inst, edgecolor='black', linewidth=1.2)
+                       color=COR_PRINCIPAL, edgecolor='black', linewidth=1.2)
 
         ax.set_yticks(range(N))
         ax.set_yticklabels(inst_display.index, fontsize=9)
@@ -537,7 +532,7 @@ try:
 
         plt.tight_layout()
         plt.subplots_adjust(bottom=0.08)
-        plt.savefig(os.path.join(FIGURAS_DIR, '04_todas_instituicoes.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '04_todas_instituicoes.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 4 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para gráfico de instituições")
@@ -568,7 +563,7 @@ try:
                 f'{v}\n({pct:.1f}%)', ha='center', fontweight='bold', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '05_foco_ia.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '05_foco_ia.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 5 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 5: {e}")
@@ -591,7 +586,7 @@ try:
     ax.set_facecolor('white')
 
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURAS_DIR, '06_evolucao_nivel.png'), dpi=300, bbox_inches='tight', facecolor='white')
+    salvar_figura(os.path.join(FIGURAS_DIR, '06_evolucao_nivel.png'), dpi=300, bbox_inches='tight', facecolor='white')
     print("✓ Gráfico 6 gerado com sucesso")
 except Exception as e:
     print(f"❌ Erro ao gerar gráfico 6: {e}")
@@ -619,7 +614,7 @@ try:
         ax.grid(True, alpha=0.3, axis='y', linestyle='--')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '07_distribuicao_paginas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '07_distribuicao_paginas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 7 gerado com sucesso")
     else:
         print("⚠ Sem dados de páginas disponíveis")
@@ -635,11 +630,9 @@ try:
         fig, ax = plt.subplots(figsize=(12, 7), facecolor='white')
 
         N = len(top10_cidades)
-        cmap = cm.get_cmap('Greens_r', N + 5)
-        cores_cidades = [cmap(i) for i in range(N)]
 
         bars = ax.barh(range(N), top10_cidades.values,
-                       color=cores_cidades, 
+                       color=COR_PRINCIPAL,
                        edgecolor='black', linewidth=1.5)
 
         ax.set_yticks(range(N))
@@ -656,7 +649,7 @@ try:
                     f'{int(v)} ({pct:.1f}%)', va='center', fontsize=9, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '08_top10_cidades.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '08_top10_cidades.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 8 gerado com sucesso")
     else:
         print("⚠ Sem dados de cidades disponíveis")
@@ -684,7 +677,7 @@ try:
         ax.set_facecolor('white')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(FIGURAS_DIR, '09_evolucao_top3_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
+        salvar_figura(os.path.join(FIGURAS_DIR, '09_evolucao_top3_areas.png'), dpi=300, bbox_inches='tight', facecolor='white')
         print("✓ Gráfico 9 gerado com sucesso")
     else:
         print("⚠ Sem dados suficientes para top 3 áreas")
