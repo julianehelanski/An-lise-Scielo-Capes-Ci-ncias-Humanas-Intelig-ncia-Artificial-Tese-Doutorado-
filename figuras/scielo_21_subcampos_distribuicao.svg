@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-06-19T21:51:20.066486</dc:date>
+    <dc:date>2026-06-21T23:21:17.380887</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -42,7 +42,7 @@ z
      <g id="line2d_1">
       <path d="M 189.03625 324.792525 
 L 189.03625 7.2 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_1">
       <!-- 0 -->
@@ -78,7 +78,7 @@ z
      <g id="line2d_2">
       <path d="M 298.118603 324.792525 
 L 298.118603 7.2 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_2">
       <!-- 50 -->
@@ -119,7 +119,7 @@ z
      <g id="line2d_3">
       <path d="M 407.200956 324.792525 
 L 407.200956 7.2 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_3">
       <!-- 100 -->
@@ -150,7 +150,7 @@ z
      <g id="line2d_4">
       <path d="M 516.283309 324.792525 
 L 516.283309 7.2 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_4">
       <!-- 150 -->
@@ -165,7 +165,7 @@ L 516.283309 7.2
      <g id="line2d_5">
       <path d="M 625.365662 324.792525 
 L 625.365662 7.2 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_5">
       <!-- 200 -->
@@ -766,7 +766,7 @@ z
      <g id="line2d_6">
       <path d="M 189.03625 286.296461 
 L 698.99625 286.296461 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_7">
       <!-- Modelos de linguagem &amp; IA generativa -->
@@ -915,7 +915,7 @@ z
      <g id="line2d_7">
       <path d="M 189.03625 226.146362 
 L 698.99625 226.146362 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_8">
       <!-- Aprendizado de máquina (ML) -->
@@ -1017,7 +1017,7 @@ z
      <g id="line2d_8">
       <path d="M 189.03625 165.996263 
 L 698.99625 165.996263 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_9">
       <!-- Tecnologias correlatas -->
@@ -1064,7 +1064,7 @@ z
      <g id="line2d_9">
       <path d="M 189.03625 105.846163 
 L 698.99625 105.846163 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_10">
       <!-- Aprendizado profundo &amp; redes neurais -->
@@ -1135,7 +1135,7 @@ z
      <g id="line2d_10">
       <path d="M 189.03625 45.696064 
 L 698.99625 45.696064 
-" clip-path="url(#pa1f09d5e86)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
+" clip-path="url(#p29a379722b)" style="fill: none; stroke-dasharray: 1.85,0.8; stroke-dashoffset: 0; stroke: #cccccc; stroke-opacity: 0.3; stroke-width: 0.5"/>
      </g>
      <g id="text_11">
       <!-- IA em sentido estrito -->
@@ -1171,7 +1171,7 @@ L 287.210368 310.356501
 L 287.210368 262.236422 
 L 189.03625 262.236422 
 z
-" clip-path="url(#pa1f09d5e86)" style="fill: #f06292; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p29a379722b)" style="fill: #f06292; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 189.03625 250.206402 
@@ -1179,7 +1179,7 @@ L 490.103544 250.206402
 L 490.103544 202.086322 
 L 189.03625 202.086322 
 z
-" clip-path="url(#pa1f09d5e86)" style="fill: #81c784; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p29a379722b)" style="fill: #81c784; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 189.03625 190.056302 
@@ -1187,7 +1187,7 @@ L 494.466838 190.056302
 L 494.466838 141.936223 
 L 189.03625 141.936223 
 z
-" clip-path="url(#pa1f09d5e86)" style="fill: #90a4ae; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p29a379722b)" style="fill: #90a4ae; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_6">
     <path d="M 189.03625 129.906203 
@@ -1195,7 +1195,7 @@ L 533.736485 129.906203
 L 533.736485 81.786123 
 L 189.03625 81.786123 
 z
-" clip-path="url(#pa1f09d5e86)" style="fill: #ba68c8; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p29a379722b)" style="fill: #ba68c8; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_7">
     <path d="M 189.03625 69.756103 
@@ -1203,7 +1203,7 @@ L 597.00425 69.756103
 L 597.00425 21.636024 
 L 189.03625 21.636024 
 z
-" clip-path="url(#pa1f09d5e86)" style="fill: #64b5f6; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
+" clip-path="url(#p29a379722b)" style="fill: #64b5f6; stroke: #ffffff; stroke-width: 0.5; stroke-linejoin: miter"/>
    </g>
    <g id="patch_8">
     <path d="M 189.03625 324.792525 
@@ -2153,7 +2153,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="pa1f09d5e86">
+  <clipPath id="p29a379722b">
    <rect x="189.03625" y="7.2" width="509.96" height="317.592525"/>
   </clipPath>
  </defs>
