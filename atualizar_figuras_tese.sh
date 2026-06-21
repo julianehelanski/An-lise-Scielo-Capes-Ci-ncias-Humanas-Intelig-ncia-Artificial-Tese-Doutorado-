@@ -2,11 +2,14 @@
 #
 # atualizar_figuras_tese.sh
 # -------------------------------------------------------------------
-# Copia as figuras geradas em figuras/ deste repositório para a pasta
-# de imagens da tese (repositório tecno-etnografia-centro-ia),
-# mantendo exatamente os mesmos nomes de arquivo — assim os
-# \includegraphics{...} e \caption{...} do .tex continuam válidos
-# sem precisar editar o LaTeX.
+# Copia as figuras de uma pasta de ORIGEM para a pasta de imagens da
+# tese (repositório tecno-etnografia-centro-ia), mantendo exatamente
+# os mesmos nomes de arquivo — assim os \includegraphics{...} e
+# \caption{...} do .tex continuam válidos sem editar o LaTeX.
+#
+# Serve para qualquer análise cujas figuras sejam consumidas pela tese:
+#   - bibliometria (este repo, origem default = ./figuras)
+#   - lexicometria (repo analise-figuracoes-latour, via --origem)
 #
 # Por padrão atualiza SOMENTE as figuras que JÁ existem na tese
 # (não despeja arquivos novos que a tese não usa) e copia apenas
@@ -15,15 +18,20 @@
 # diferença visual.
 #
 # USO:
-#   ./atualizar_figuras_tese.sh <pasta_de_figuras_da_tese> [opções]
+#   ./atualizar_figuras_tese.sh [pasta_de_figuras_da_tese] [opções]
 #
-#   Se a pasta não for informada, o script tenta localizar
+#   Se a pasta da tese não for informada, o script tenta localizar
 #   automaticamente uma pasta de figuras dentro de um repositório
 #   irmão chamado "tecno-etnografia-centro-ia".
 #
 # OPÇÕES:
-#   --regenerar   Roda os scripts de análise antes de copiar, para
-#                 garantir que as figuras estão atualizadas.
+#   --origem DIR  Pasta de figuras de origem (default: ./figuras deste
+#                 repo). Use para copiar de outra análise, p. ex. a
+#                 lexicométrica em analise-figuracoes-latour.
+#   --regenerar   Roda os scripts de análise deste repo antes de copiar.
+#                 Só vale para a origem default (bibliometria); para
+#                 outra origem, regenere as figuras no repo de origem
+#                 antes de rodar este script.
 #   --svg         Copia também os .svg (além dos .png).
 #   --todas       Copia todas as figuras, inclusive as que ainda não
 #                 existem na tese (default: só atualiza as existentes).
@@ -31,14 +39,18 @@
 #   -h, --help    Mostra esta ajuda.
 #
 # EXEMPLOS:
-#   ./atualizar_figuras_tese.sh ../tecno-etnografia-centro-ia/figuras
-#   ./atualizar_figuras_tese.sh --regenerar ../tese/img
-#   ./atualizar_figuras_tese.sh --dry-run
+#   # bibliometria -> tese
+#   ./atualizar_figuras_tese.sh --regenerar ../tecno-etnografia-centro-ia/figuras
+#   # lexicometria -> tese
+#   ./atualizar_figuras_tese.sh \
+#       --origem ../analise-figuracoes-latour/figuras \
+#       ../tecno-etnografia-centro-ia/figuras
 # -------------------------------------------------------------------
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FIGURAS_SRC="$REPO_DIR/figuras"
+FIGURAS_SRC_DEFAULT="$REPO_DIR/figuras"
+FIGURAS_SRC="$FIGURAS_SRC_DEFAULT"
 
 DEST=""
 REGENERAR=0
@@ -46,17 +58,23 @@ COPIAR_SVG=0
 COPIAR_TODAS=0
 DRY_RUN=0
 
-for arg in "$@"; do
-  case "$arg" in
-    --regenerar) REGENERAR=1 ;;
-    --svg)       COPIAR_SVG=1 ;;
-    --todas)     COPIAR_TODAS=1 ;;
-    --dry-run)   DRY_RUN=1 ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --origem)    FIGURAS_SRC="$(cd "$2" 2>/dev/null && pwd || echo "$2")"; shift 2 ;;
+    --regenerar) REGENERAR=1; shift ;;
+    --svg)       COPIAR_SVG=1; shift ;;
+    --todas)     COPIAR_TODAS=1; shift ;;
+    --dry-run)   DRY_RUN=1; shift ;;
     -h|--help)   sed -n '2,/^set -euo/p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//; /^set -euo/d'; exit 0 ;;
-    -*)          echo "Opção desconhecida: $arg" >&2; exit 1 ;;
-    *)           DEST="$arg" ;;
+    -*)          echo "Opção desconhecida: $1" >&2; exit 1 ;;
+    *)           DEST="$1"; shift ;;
   esac
 done
+
+if [[ ! -d "$FIGURAS_SRC" ]]; then
+  echo "ERRO: pasta de origem não existe: $FIGURAS_SRC" >&2
+  exit 1
+fi
 
 # ---------------------------------------------------------------
 # 1. Localiza a pasta de figuras da tese
@@ -85,6 +103,14 @@ fi
 # ---------------------------------------------------------------
 # 2. (Opcional) Regenera as figuras
 # ---------------------------------------------------------------
+if [[ "$REGENERAR" -eq 1 && "$FIGURAS_SRC" != "$FIGURAS_SRC_DEFAULT" ]]; then
+  echo
+  echo "AVISO: --regenerar só vale para a origem default (bibliometria)."
+  echo "       Para a origem '$FIGURAS_SRC', regenere as figuras no repo de"
+  echo "       origem antes de rodar este script. Pulando regeneração."
+  REGENERAR=0
+fi
+
 if [[ "$REGENERAR" -eq 1 ]]; then
   echo
   echo "=== Regenerando figuras ==="
