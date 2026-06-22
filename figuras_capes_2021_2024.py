@@ -120,7 +120,7 @@ def texto_classificacao(df: pd.DataFrame) -> pd.Series:
 
 
 def _cor_por_humanas(label: str) -> str:
-    return COR_HUMANAS if "Humanas" in str(label) else COR_NEUTRA
+    return COR_HUMANAS if "humanas" in str(label).lower() else COR_NEUTRA
 
 
 # ---------------------------------------------------------------------------
@@ -148,19 +148,23 @@ def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> No
     ax1.set_xlim(0, counts.max() * 1.22)
 
     if ax2 is not None:
+        # Mesma ordem do painel esquerdo: os rótulos do eixo Y são compartilhados
+        # (ocultos à direita), então as barras precisam casar linha a linha.
         taxa = pd.Series({
             area: counts.get(area, 0) / totais_universo.get(area, np.nan) * 100
             for area in counts.index
-        }).dropna().sort_values()
+        }).reindex(counts.index)
         cores2 = [_cor_por_humanas(a) for a in taxa.index]
         bars2 = ax2.barh(taxa.index, taxa.values, color=cores2, edgecolor="white", linewidth=0.5)
         for bar, val in zip(bars2, taxa.values):
-            ax2.text(bar.get_width() + taxa.max() * 0.01,
+            if pd.isna(val):
+                continue
+            ax2.text(bar.get_width() + np.nanmax(taxa.values) * 0.01,
                      bar.get_y() + bar.get_height() / 2,
                      f"{val:.1f}%",
                      va="center", fontsize=8)
         ax2.set_xlabel("Taxa interna: % da grande área que é sobre IA")
-        ax2.set_xlim(0, taxa.max() * 1.18)
+        ax2.set_xlim(0, np.nanmax(taxa.values) * 1.18)
         ax2.set_yticklabels([])  # eixo Y duplicado, omite
 
     plt.tight_layout()

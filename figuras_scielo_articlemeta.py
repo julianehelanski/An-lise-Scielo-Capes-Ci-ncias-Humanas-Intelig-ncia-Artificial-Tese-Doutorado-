@@ -227,18 +227,22 @@ def fig11_subject_area(df, universo):
     ax1.set_xlim(0, counts.max() * 1.25)
 
     if ax2 is not None:
+        # Mesma ordem do painel esquerdo: os rótulos do eixo Y são compartilhados
+        # (ocultos à direita), então as barras precisam casar linha a linha.
         taxa = pd.Series({
             sa: counts.get(sa, 0) / univ_counts.get(sa, np.nan) * 100
             for sa in counts.index
-        }).dropna().sort_values()
+        }).reindex(counts.index)
         cores2 = [_cor_sa(l) for l in taxa.index]
         bars2 = ax2.barh(taxa.index, taxa.values, color=cores2, edgecolor="white", linewidth=0.5)
         for bar, val in zip(bars2, taxa.values):
-            ax2.text(bar.get_width() + taxa.max() * 0.02,
+            if pd.isna(val):
+                continue
+            ax2.text(bar.get_width() + np.nanmax(taxa.values) * 0.02,
                      bar.get_y() + bar.get_height()/2,
                      f"{val:.2f}%", va="center", fontsize=9)
         ax2.set_xlabel("Taxa interna: % da subject area que é sobre o campo")
-        ax2.set_xlim(0, taxa.max() * 1.20)
+        ax2.set_xlim(0, np.nanmax(taxa.values) * 1.20)
         ax2.set_yticklabels([])
 
     plt.tight_layout()
