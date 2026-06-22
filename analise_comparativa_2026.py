@@ -26,19 +26,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from utils import (
-    CORES_INTERMEDIARIAS,
+    CORES_C4AI as CORES_INTERMEDIARIAS,  # paleta padronizada com o C4AI
     DADOS_CAPES_DIR,
     DADOS_SCIELO_DIR,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
+    aplicar_paleta_c4ai,
     garantir_diretorio,
 )
 
 aplicar_estilo_padrao()
+aplicar_paleta_c4ai()
 garantir_diretorio(FIGURAS_DIR)
 
-COR_SCIELO = CORES_INTERMEDIARIAS[3]   # azul
-COR_CAPES = CORES_INTERMEDIARIAS[0]    # vermelho
+COR_SCIELO = CORES_INTERMEDIARIAS[3]   # azul de destaque (C4AI)
+COR_CAPES = CORES_INTERMEDIARIAS[0]    # vermelho de destaque (C4AI)
 
 ANO_MIN = 2021
 ANO_MAX = 2024

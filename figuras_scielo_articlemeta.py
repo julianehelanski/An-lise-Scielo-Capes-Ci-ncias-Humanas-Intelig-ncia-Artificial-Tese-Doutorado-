@@ -37,19 +37,22 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 
 from utils import (
-    CORES_INTERMEDIARIAS,
+    CMAP_C4AI_HEATMAP,
+    CORES_C4AI as CORES_INTERMEDIARIAS,  # paleta padronizada com o C4AI
     DADOS_SCIELO_DIR,
     FIGURAS_DIR,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    aplicar_paleta_c4ai,
+    cores_c4ai_categoricas,
     garantir_diretorio,
     salvar_figura,
 )
 
 aplicar_estilo_padrao()
+aplicar_paleta_c4ai()
 garantir_diretorio(FIGURAS_DIR)
 
 CSV_IA = os.path.join(DADOS_SCIELO_DIR, "scielo_brasil_ia_subcampos_auditoria.xlsx")
@@ -59,9 +62,9 @@ CSV_UNIVERSO_AGREGADO = os.path.join(DADOS_SCIELO_DIR, "scielo_brasil_universo_a
 CSV_IA_FALLBACK = os.path.join(DADOS_SCIELO_DIR, "scielo_ia_subcampos.csv")
 CSV_UNIVERSO_FALLBACK = os.path.join(DADOS_SCIELO_DIR, "scielo_humanas_universo.csv")
 
-COR_HUMANAS = CORES_INTERMEDIARIAS[0]      # vermelho-muted (Humanas em destaque)
-COR_DEST = CORES_INTERMEDIARIAS[3]         # azul
-COR_NEUTRA = CORES_INTERMEDIARIAS[9]       # cinza-azulado
+COR_HUMANAS = CORES_INTERMEDIARIAS[0]      # vermelho de destaque (C4AI; Humanas)
+COR_DEST = CORES_INTERMEDIARIAS[3]         # azul de destaque (C4AI)
+COR_NEUTRA = CORES_INTERMEDIARIAS[9]       # cinza neutro
 
 ANO_MIN, ANO_MAX = 2021, 2024
 
@@ -254,9 +257,10 @@ def fig12_temporal_subject_area(df):
     pivot = pivot[pivot.sum().sort_values(ascending=False).index]
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
+    spectral = cores_c4ai_categoricas(len(pivot.columns))
     for i, sa in enumerate(pivot.columns):
         is_human = sa == "Human Sciences"
-        cor = COR_HUMANAS if is_human else CORES_INTERMEDIARIAS[(i + 2) % 12]
+        cor = COR_HUMANAS if is_human else spectral[i]
         lw = 3.0 if is_human else 1.6
         ax.plot(pivot.index, pivot[sa], marker="o", linewidth=lw, color=cor,
                 label=sa, alpha=1.0 if is_human else 0.8)
@@ -294,8 +298,7 @@ def fig13_heatmap_sa_keyword(df):
     norm = bruto.div(bruto.sum(axis=0).replace(0, np.nan), axis=1).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_red", ["#FFFFFF", COR_HUMANAS])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
+    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_C4AI_HEATMAP, vmin=0, vmax=norm.values.max())
     ax.set_xticks(range(len(norm.columns)))
     ax.set_xticklabels(norm.columns, rotation=40, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm.index)))
@@ -507,8 +510,7 @@ def fig22_heatmap_subcampo_sa(df):
     norm = bruto.div(bruto.sum(axis=1).replace(0, np.nan), axis=0).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_blue", ["#FFFFFF", COR_DEST])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
+    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_C4AI_HEATMAP, vmin=0, vmax=norm.values.max())
     ax.set_xticks(range(len(norm.columns)))
     ax.set_xticklabels(norm.columns, rotation=20, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm.index)))

@@ -30,16 +30,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from utils import (
-    CORES_INTERMEDIARIAS,
+    CORES_C4AI as CORES_INTERMEDIARIAS,  # paleta padronizada com o C4AI
     DADOS_CAPES_DIR,
     FIGURAS_DIR,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    aplicar_paleta_c4ai,
     garantir_diretorio,
     salvar_figura,
 )
 
 aplicar_estilo_padrao()
+aplicar_paleta_c4ai()
 garantir_diretorio(FIGURAS_DIR)
 
 CSV_IA = os.path.join(DADOS_CAPES_DIR, "capes_2021_2024_ia.csv")

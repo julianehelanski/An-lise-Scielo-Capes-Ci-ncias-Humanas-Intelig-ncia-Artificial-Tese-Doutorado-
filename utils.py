@@ -77,6 +77,62 @@ CORES_INTERMEDIARIAS = [
 
 
 # =============================================================================
+# Paleta C4AI — padroniza as figuras CAPES/SciELO/comparativo com a análise de
+# publicações do C4AI (repo bibliometria-publicacoes-c4ai), que segue o "padrão
+# Python": matplotlib default + seaborn, base de cores `husl`, categóricas em
+# `Spectral`, heatmaps em `YlOrRd` e três acentos saturados (azul/vermelho/roxo).
+# As figuras OpenAlex continuam em CORES_INTERMEDIARIAS (paleta Material muted).
+# =============================================================================
+
+# Acentos saturados do C4AI.
+COR_C4AI_AZUL = '#2E86AB'      # azul de destaque
+COR_C4AI_VERMELHO = '#E74C3C'  # vermelho de destaque
+COR_C4AI_ROXO = '#9B59B6'      # roxo de destaque
+COR_C4AI_CINZA = '#95A5A6'     # cinza neutro (companheiro flat-UI)
+
+# Colormap dos heatmaps no C4AI.
+CMAP_C4AI_HEATMAP = 'YlOrRd'
+
+# Lista indexada na MESMA ordem semântica de CORES_INTERMEDIARIAS, para que os
+# scripts CAPES/SciELO troquem de paleta só no import (alias), sem reescrever
+# os índices. Família flat-UI saturada, condizente com os acentos do C4AI.
+CORES_C4AI = [
+    COR_C4AI_VERMELHO,  # 0: vermelho (destaque Humanas)
+    '#E67E22',          # 1: laranja
+    '#27AE60',          # 2: verde
+    COR_C4AI_AZUL,      # 3: azul (destaque)
+    COR_C4AI_ROXO,      # 4: roxo
+    '#F1C40F',          # 5: amarelo
+    '#E84393',          # 6: rosa
+    '#16A085',          # 7: verde-azulado
+    '#A0522D',          # 8: marrom
+    COR_C4AI_CINZA,     # 9: cinza neutro
+    '#BDC3C7',          # 10: cinza claro
+    '#E0E0E0',          # 11: cinza muito claro
+]
+
+
+def cores_c4ai_categoricas(n):
+    """Paleta categórica do C4AI: `Spectral` com n cores, em hex.
+
+    Usada onde as categorias não têm cor semântica fixa (ex.: muitas áreas
+    numa série temporal), espelhando `sns.color_palette("Spectral", n)` da
+    análise do C4AI.
+    """
+    return sns.color_palette('Spectral', n_colors=max(int(n), 1)).as_hex()
+
+
+def aplicar_paleta_c4ai():
+    """Ativa a base de cores do C4AI (`sns.set_palette('husl')`).
+
+    Chamada pelos scripts CAPES/SciELO depois de `aplicar_estilo_padrao()`
+    para que o ciclo de cores default (onde não há cor explícita) seja o mesmo
+    da análise do C4AI. Não afeta o OpenAlex, que não a chama.
+    """
+    sns.set_palette('husl')
+
+
+# =============================================================================
 # Subcampos: reconhece que IA, ML, deep learning, LLMs e tecnologias correlatas
 # têm genealogias e comunidades epistêmicas distintas. Cada subcampo é definido
 # por seu próprio regex; um trabalho pode pertencer a mais de um subcampo
