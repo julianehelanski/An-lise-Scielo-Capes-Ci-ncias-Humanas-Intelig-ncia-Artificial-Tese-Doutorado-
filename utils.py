@@ -435,7 +435,9 @@ def dotplot(ax, labels, vals, cores, pcts=None, rotulos=None, halo=False,
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=11, color=_TXT)
     ax.set_xticks([])
-    ax.set_xlim(0, mx * 1.45)
+    # Folga à esquerda do 0: bolinhas com valor pequeno/zero não são cortadas
+    # pela borda do eixo.
+    ax.set_xlim(-mx * 0.03, mx * 1.45)
     ax.set_ylim(-0.6, n - 0.4)
 
 
@@ -461,7 +463,8 @@ def dumbbell(ax, labels, series, cores, sufixo="") -> None:
                    edgecolors="white", linewidths=1.4, label=nm)
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=11, color=_TXT)
-    ax.set_xlim(0, mx * 1.12)
+    # Folga à esquerda do 0: bolinhas em valor pequeno/zero não são cortadas.
+    ax.set_xlim(-mx * 0.03, mx * 1.12)
     ax.set_ylim(-0.6, n - 0.4)
     for s in ax.spines.values():
         s.set_visible(False)
