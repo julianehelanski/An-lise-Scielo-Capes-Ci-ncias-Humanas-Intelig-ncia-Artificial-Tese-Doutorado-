@@ -34,6 +34,8 @@ from utils import (
     FIGURAS_DIR,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    num_ptbr,
+    pct_ptbr,
     salvar_figura,
 )
 
@@ -103,7 +105,7 @@ def fig_ranking_paises(top: int = 15) -> None:
     cores = _cores(df["pais"].tolist(), topo_idx=len(df) - 1)  # topo está no fim (iloc invertido)
     ax.barh(df["pais"].astype(str), df["count_ia_hum"], color=cores)
     for y, v in enumerate(df["count_ia_hum"]):
-        ax.text(v, y, f" {int(v):,}".replace(",", "."), va="center", fontsize=8)
+        ax.text(v, y, f" {num_ptbr(int(v))}".replace(",", "."), va="center", fontsize=8)
     ax.set_xlabel("Publicações de IA nas Humanidades (2016–2024)")
     ax.margins(x=0.12)
     _salvar(fig, "openalex_01_ranking_paises.png")
@@ -123,7 +125,7 @@ def fig_taxa_interna_paises(top: int = 15) -> None:
     cores = _cores(df["pais"].tolist(), topo_idx=-1)
     ax.barh(df["pais"].astype(str), df["taxa_interna_%"], color=cores)
     for y, v in enumerate(df["taxa_interna_%"]):
-        ax.text(v, y, f" {v:.1f}%", va="center", fontsize=8)
+        ax.text(v, y, f" {pct_ptbr(v, 1)}%", va="center", fontsize=8)
     ax.set_xlabel("Taxa interna: % das Humanidades do país que tocam IA")
     ax.margins(x=0.12)
     _salvar(fig, "openalex_02_taxa_interna_paises.png")
@@ -141,7 +143,7 @@ def fig_brasil_temporal() -> None:
     ax1.set_ylabel("Publicações de IA nas Humanidades", color=COR_DEST)
     ax1.tick_params(axis="y", labelcolor=COR_DEST)
     for x, v in enumerate(df["count_ia_hum"]):
-        ax1.text(x, v, f"{int(v):,}".replace(",", "."), ha="center", va="bottom", fontsize=8)
+        ax1.text(x, v, f"{num_ptbr(int(v))}".replace(",", "."), ha="center", va="bottom", fontsize=8)
 
     ax2 = ax1.twinx()
     ax2.plot(df["ano"].astype(int).astype(str), df["taxa_interna_%"],

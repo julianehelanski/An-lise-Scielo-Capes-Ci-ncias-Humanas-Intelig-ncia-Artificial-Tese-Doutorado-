@@ -220,7 +220,7 @@ def fig11_subject_area(df, universo):
     for bar, val in zip(bars, counts.values):
         ax1.text(bar.get_width() + total * 0.005,
                  bar.get_y() + bar.get_height()/2,
-                 f"{val} ({val/total*100:.1f}%)",
+                 f"{val} ({pct_ptbr(val/total*100, 1)}%)",
                  va="center", fontsize=9)
     ax1.set_xlabel(f"Artigos no campo Tecnologias IA/ML/DL (N = {total})")
     ax1.set_xlim(0, counts.max() * 1.25)
@@ -235,7 +235,7 @@ def fig11_subject_area(df, universo):
         for bar, val in zip(bars2, taxa.values):
             ax2.text(bar.get_width() + taxa.max() * 0.02,
                      bar.get_y() + bar.get_height()/2,
-                     f"{val:.2f}%", va="center", fontsize=9)
+                     f"{pct_ptbr(val, 2)}%", va="center", fontsize=9)
         ax2.set_xlabel("Taxa interna: % da subject area que é sobre o campo")
         ax2.set_xlim(0, taxa.max() * 1.20)
         ax2.set_yticklabels([])
@@ -307,7 +307,7 @@ def fig13_heatmap_sa_keyword(df):
             v = norm.values[i, j]
             raw = int(bruto.values[i, j])
             if raw > 0:
-                ax.text(j, i, f"{v:.0f}%\n({raw})",
+                ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({raw})",
                         ha="center", va="center",
                         color="white" if v > norm.values.max() * 0.55 else "#333",
                         fontsize=7)
@@ -375,7 +375,7 @@ def fig15_idioma(df):
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_x() + bar.get_width()/2,
                 bar.get_height() + total * 0.005,
-                f"{val}\n({val/total*100:.1f}%)",
+                f"{val}\n({pct_ptbr(val/total*100, 1)}%)",
                 ha="center", va="bottom", fontsize=9)
     ax.set_ylabel("Artigos sobre Tecnologias IA/ML/DL")
     ax.set_ylim(0, serie.max() * 1.20)
@@ -522,7 +522,7 @@ def fig22_heatmap_subcampo_sa(df):
             v = norm.values[i, j]
             raw = int(bruto.values[i, j])
             if raw > 0:
-                ax.text(j, i, f"{v:.0f}%\n({raw})",
+                ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({raw})",
                         ha="center", va="center",
                         color="white" if v > norm.values.max() * 0.5 else "#333",
                         fontsize=7)

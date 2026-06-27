@@ -36,6 +36,8 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    num_ptbr,
+    pct_ptbr,
     salvar_figura,
 )
 
@@ -81,7 +83,7 @@ def figh01_areas_humanas(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_width() + serie.max() * 0.01,
                 bar.get_y() + bar.get_height() / 2,
-                f"{val} ({val/total*100:.1f}%)", va="center", fontsize=8)
+                f"{val} ({pct_ptbr(val/total*100, 1)}%)", va="center", fontsize=8)
     ax.set_xlabel(f"Trabalhos no campo Tecnologias IA/ML/DL em Ciências Humanas (N = {total})")
     ax.set_xlim(0, serie.max() * 1.22)
     # Legenda
@@ -163,7 +165,7 @@ def figh04_regiao_humanas(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_x() + bar.get_width() / 2,
                 bar.get_height() + total * 0.01,
-                f"{val}\n({val/total*100:.1f}%)",
+                f"{val}\n({pct_ptbr(val/total*100, 1)}%)",
                 ha="center", va="bottom", fontsize=9)
     ax.set_ylabel("Trabalhos IA em Humanas")
     ax.set_ylim(0, serie.max() * 1.18)

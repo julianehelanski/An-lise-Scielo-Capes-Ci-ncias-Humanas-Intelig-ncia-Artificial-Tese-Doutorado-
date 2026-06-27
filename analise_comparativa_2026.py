@@ -32,6 +32,8 @@ from utils import (
     FIGURAS_DIR,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    num_ptbr,
+    pct_ptbr,
 )
 
 aplicar_estilo_padrao()
@@ -143,8 +145,8 @@ def fig_comparativa(sci: pd.DataFrame, cap: pd.DataFrame) -> None:
     ax.barh(x + w/2, sci_pct, w, color=COR_SCIELO, label="SciELO Human Sciences", edgecolor="white")
     ax.barh(x - w/2, cap_pct, w, color=COR_CAPES, label="CAPES Humanas", edgecolor="white")
     for i, (sv, cv) in enumerate(zip(sci_pct, cap_pct)):
-        ax.text(sv + 1, i + w/2, f"{sv:.1f}%", va="center", fontsize=7, color=COR_SCIELO)
-        ax.text(cv + 1, i - w/2, f"{cv:.1f}%", va="center", fontsize=7, color=COR_CAPES)
+        ax.text(sv + 1, i + w/2, f"{pct_ptbr(sv, 1)}%", va="center", fontsize=7, color=COR_SCIELO)
+        ax.text(cv + 1, i - w/2, f"{pct_ptbr(cv, 1)}%", va="center", fontsize=7, color=COR_CAPES)
     ax.set_yticks(x)
     ax.set_yticklabels([l.replace(" & ", "\n& ").replace(" (", "\n(") for l in labels], fontsize=8)
     ax.set_xlabel("% do corpus que toca o subcampo")

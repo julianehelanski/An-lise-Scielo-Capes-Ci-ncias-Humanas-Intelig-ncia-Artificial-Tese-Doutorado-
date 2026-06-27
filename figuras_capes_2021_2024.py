@@ -141,9 +141,9 @@ def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> No
     for bar, val in zip(bars, counts.values):
         ax1.text(bar.get_width() + total * 0.005,
                  bar.get_y() + bar.get_height() / 2,
-                 f"{val:,} ({val/total*100:.1f}%)",
+                 f"{num_ptbr(val)} ({pct_ptbr(val/total*100, 1)}%)",
                  va="center", fontsize=8)
-    ax1.set_xlabel(f"Trabalhos no campo Tecnologias IA/ML/DL (N = {total:,})")
+    ax1.set_xlabel(f"Trabalhos no campo Tecnologias IA/ML/DL (N = {num_ptbr(total)})")
     ax1.set_xlim(0, counts.max() * 1.22)
 
     if ax2 is not None:
@@ -156,7 +156,7 @@ def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> No
         for bar, val in zip(bars2, taxa.values):
             ax2.text(bar.get_width() + taxa.max() * 0.01,
                      bar.get_y() + bar.get_height() / 2,
-                     f"{val:.1f}%",
+                     f"{pct_ptbr(val, 1)}%",
                      va="center", fontsize=8)
         ax2.set_xlabel("Taxa interna: % da grande área que é sobre IA")
         ax2.set_xlim(0, taxa.max() * 1.18)
@@ -194,7 +194,7 @@ def fig12_temporal_grande_area(df: pd.DataFrame) -> None:
         # Rótulo no fim de cada linha
         x_end = pivot.index[-1]
         y_end = pivot[area].iloc[-1]
-        ax.text(x_end + 0.05, y_end, f"  {area} ({y_end:,})",
+        ax.text(x_end + 0.05, y_end, f"  {area} ({num_ptbr(y_end)})",
                 fontsize=8, va="center",
                 color=cor, fontweight="bold" if is_humanas else "normal")
 
@@ -241,7 +241,7 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
             v = norm_col.values[i, j]
             raw = int(bruto.values[i, j])
             if raw > 0:
-                txt = f"{v:.0f}%\n({raw:,})"
+                txt = f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})"
                 ax.text(j, i, txt, ha="center", va="center",
                         color="white" if v > norm_col.values.max() * 0.55 else "#333",
                         fontsize=6.5)
@@ -275,12 +275,12 @@ def fig14_temporal_total(df: pd.DataFrame) -> None:
         ax.bar(anos, vals, bottom=bottom, color=cores[foco], label=foco, edgecolor="white")
         for x, v, b in zip(anos, vals, bottom):
             if v > 50:
-                ax.text(x, b + v / 2, f"{int(v):,}", ha="center", va="center",
+                ax.text(x, b + v / 2, f"{num_ptbr(int(v))}", ha="center", va="center",
                         color="white", fontsize=9)
         bottom = bottom + vals
     # Total no topo
     for x, total in zip(anos, bottom):
-        ax.text(x, total + max(bottom) * 0.02, f"{int(total):,}",
+        ax.text(x, total + max(bottom) * 0.02, f"{num_ptbr(int(total))}",
                 ha="center", va="bottom", fontsize=10, fontweight="bold")
     ax.set_xlabel("Ano base de defesa")
     ax.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL")
@@ -305,7 +305,7 @@ def fig15_nivel_academico(df: pd.DataFrame) -> None:
     bars = ax.bar(serie.index, serie.values, color=cores, edgecolor="white")
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + total * 0.005,
-                f"{val:,}\n({val/total*100:.1f}%)",
+                f"{num_ptbr(val)}\n({pct_ptbr(val/total*100, 1)}%)",
                 ha="center", va="bottom", fontsize=9)
     ax.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL")
     ax.set_ylim(0, serie.max() * 1.18)
@@ -336,7 +336,7 @@ def fig16_top_areas_conhecimento(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_width() + serie.max() * 0.01,
                 bar.get_y() + bar.get_height() / 2,
-                f"{val:,}", va="center", fontsize=8)
+                f"{num_ptbr(val)}", va="center", fontsize=8)
     ax.set_xlabel("Trabalhos no campo Tecnologias IA/ML/DL (top 20 áreas de conhecimento)")
     ax.set_xlim(0, serie.max() * 1.12)
     # Legenda explicando cor
@@ -364,7 +364,7 @@ def fig17_top_instituicoes(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, serie.values):
         ax.text(bar.get_width() + serie.max() * 0.01,
                 bar.get_y() + bar.get_height() / 2,
-                f"{val:,}", va="center", fontsize=8)
+                f"{num_ptbr(val)}", va="center", fontsize=8)
     ax.set_xlabel("Trabalhos no campo Tecnologias IA/ML/DL (top 20 IES)")
     ax.set_xlim(0, serie.max() * 1.12)
     plt.tight_layout()
@@ -386,7 +386,7 @@ def fig18_regiao_uf(df: pd.DataFrame) -> None:
     bars = ax1.bar(regiao.index, regiao.values, color=cores_r, edgecolor="white")
     for bar, val in zip(bars, regiao.values):
         ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + regiao.max() * 0.01,
-                 f"{val:,}", ha="center", va="bottom", fontsize=9)
+                 f"{num_ptbr(val)}", ha="center", va="bottom", fontsize=9)
     ax1.set_title("Por região", fontsize=10)
     ax1.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL")
     ax1.set_ylim(0, regiao.max() * 1.15)
@@ -394,7 +394,7 @@ def fig18_regiao_uf(df: pd.DataFrame) -> None:
     bars = ax2.bar(uf.index, uf.values, color=COR_DEST, edgecolor="white")
     for bar, val in zip(bars, uf.values):
         ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + uf.max() * 0.01,
-                 f"{val:,}", ha="center", va="bottom", fontsize=8)
+                 f"{num_ptbr(val)}", ha="center", va="bottom", fontsize=8)
     ax2.set_title("Top 15 UFs", fontsize=10)
     ax2.set_ylim(0, uf.max() * 1.15)
     plt.tight_layout()
@@ -459,7 +459,7 @@ def fig20_top_termos(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, vals):
         ax.text(bar.get_width() + max(vals) * 0.01,
                 bar.get_y() + bar.get_height() / 2,
-                f"{val:,}", va="center", fontsize=8)
+                f"{num_ptbr(val)}", va="center", fontsize=8)
     ax.set_xlabel("Ocorrências em títulos (top 25, exclui termos canônicos de IA)")
     ax.set_xlim(0, max(vals) * 1.12)
     plt.tight_layout()
@@ -562,7 +562,7 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
             v = norm.values[i, j]
             raw = int(bruto.values[i, j])
             if raw > 0:
-                ax.text(j, i, f"{v:.0f}%\n({raw:,})",
+                ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})",
                         ha="center", va="center",
                         color="white" if v > norm.values.max() * 0.5 else "#333",
                         fontsize=7)
@@ -589,7 +589,7 @@ def fig23_temporal_subcampos(df: pd.DataFrame) -> None:
         # Anota valor final
         x_end = serie.index[-1]
         y_end = serie.iloc[-1]
-        ax.text(x_end + 0.06, y_end, f" {y_end:,}", fontsize=8, va="center", color=cor)
+        ax.text(x_end + 0.06, y_end, f" {num_ptbr(y_end)}", fontsize=8, va="center", color=cor)
 
     ax.set_xlabel("Ano base de defesa")
     ax.set_ylabel("Trabalhos que mencionam o subcampo")
