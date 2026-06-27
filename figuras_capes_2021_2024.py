@@ -502,15 +502,17 @@ def fig21_subcampos_distribuicao(df: pd.DataFrame) -> None:
     for col, label in SUBCAMPO_COLS:
         counts.append(_bool_col(df, col).sum())
     total = len(df)
-    # Ordena visualmente (maior para menor, mas mantém cor por subcampo)
+    # Ordena visualmente (maior para menor por volume).
     pares = sorted(zip([l for _, l in SUBCAMPO_COLS], counts, SUBCAMPO_CORES),
                    key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    cores = [p[2] for p in pares]
+    # Cor-assinatura única da base CAPES (verde); padronização por base de dados,
+    # em vez de uma cor por subcampo. Ver scielo (azul) e openalex_04 (vermelho).
+    cor_base = CORES_INTERMEDIARIAS[2]
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
-    bars = ax.barh(labels, vals, color=cores, edgecolor="white", linewidth=0.5)
+    bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
     for bar, val in zip(bars, vals):
         ax.text(bar.get_width() + max(vals) * 0.01,
                 bar.get_y() + bar.get_height() / 2,

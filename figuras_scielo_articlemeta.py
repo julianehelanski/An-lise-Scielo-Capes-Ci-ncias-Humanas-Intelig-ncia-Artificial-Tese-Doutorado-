@@ -471,9 +471,11 @@ def fig21_subcampos_dist(df):
     pares.sort(key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    cores = [p[2] for p in pares]
+    # Cor-assinatura única da base SciELO (azul); padronização por base de dados,
+    # em vez de uma cor por subcampo. Ver capes (verde) e openalex_04 (vermelho).
+    cor_base = CORES_INTERMEDIARIAS[3]
     fig, ax = plt.subplots(figsize=(10, 5.5))
-    bars = ax.barh(labels, vals, color=cores, edgecolor="white", linewidth=0.5)
+    bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
     for bar, val in zip(bars, vals):
         ax.text(bar.get_width() + max(vals) * 0.02,
                 bar.get_y() + bar.get_height()/2,
