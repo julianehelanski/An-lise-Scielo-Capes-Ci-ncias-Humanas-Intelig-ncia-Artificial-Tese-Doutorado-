@@ -265,8 +265,7 @@ def fig12_temporal_subject_area(df):
         x_end = pivot.index[-1]
         y_end = pivot[sa].iloc[-1]
         ax.text(x_end + 0.05, y_end, f"  {sa} ({y_end})",
-                fontsize=8, va="center", color=cor,
-                fontweight="bold" if is_human else "normal")
+                fontsize=8, va="center", color=cor)
     ax.set_xlabel("Ano de publicação")
     ax.set_ylabel("Artigos sobre Tecnologias IA/ML/DL")
     ax.set_xticks(sorted(pivot.index))

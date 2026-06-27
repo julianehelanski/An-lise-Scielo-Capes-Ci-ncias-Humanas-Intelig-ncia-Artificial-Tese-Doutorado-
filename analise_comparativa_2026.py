@@ -125,7 +125,7 @@ def fig_comparativa(sci: pd.DataFrame, cap: pd.DataFrame) -> None:
         ax.text(x, y + 3, f"{y}", ha="center", color=COR_SCIELO, fontsize=8)
     for x, y in zip(c_ano.index, c_ano.values):
         ax.text(x, y + 3, f"{y}", ha="center", color=COR_CAPES, fontsize=8)
-    ax.set_title("Evolução 2021–2024", fontsize=10)
+    ax.set_title("Evolução 2021–2024", fontsize=10, loc="left", color="#5a5a5a")
     ax.set_xlabel("Ano")
     ax.set_ylabel("Publicações sobre IA/ML/DL")
     ax.set_xticks(range(ANO_MIN, ANO_MAX + 1))
@@ -139,7 +139,7 @@ def fig_comparativa(sci: pd.DataFrame, cap: pd.DataFrame) -> None:
         for s in ax.spines.values():
             s.set_visible(False)
         ax.tick_params(left=False)
-        ax.set_title(titulo, fontsize=10, loc="left", fontweight="bold", color="#1a1a1a")
+        ax.set_title(titulo, fontsize=10, loc="left", color="#5a5a5a")
 
     # ----- (B) Distribuição por subcampo (dumbbell SciELO × CAPES) -----
     ax = axes[0, 1]
@@ -158,7 +158,7 @@ def fig_comparativa(sci: pd.DataFrame, cap: pd.DataFrame) -> None:
     dumbbell(ax, labs_b, series, cores_b)
     ax.tick_params(axis="y", labelsize=8)
     ax.set_title("Distribuição por subcampo (% do corpus de cada base)", fontsize=10,
-                 loc="left", fontweight="bold", color="#1a1a1a")
+                 loc="left", color="#5a5a5a")
     ax.legend(loc="lower right", frameon=False, fontsize=8)
 
     # ----- (C) Top periódicos SciELO -----

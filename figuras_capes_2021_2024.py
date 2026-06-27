@@ -196,8 +196,7 @@ def fig12_temporal_grande_area(df: pd.DataFrame) -> None:
         x_end = pivot.index[-1]
         y_end = pivot[area].iloc[-1]
         ax.text(x_end + 0.05, y_end, f"  {area} ({num_ptbr(y_end)})",
-                fontsize=8, va="center",
-                color=cor, fontweight="bold" if is_humanas else "normal")
+                fontsize=8, va="center", color=cor)
 
     ax.set_xlabel("Ano base de defesa")
     ax.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL")

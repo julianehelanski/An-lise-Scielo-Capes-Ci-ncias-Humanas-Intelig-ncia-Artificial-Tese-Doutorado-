@@ -132,7 +132,7 @@ def figh02_temporal_humanas(df: pd.DataFrame) -> None:
         bottom = bottom + vals
     for x, total in zip(anos, bottom):
         ax.text(x, total + bottom.max() * 0.02, f"{int(total)}",
-                ha="center", va="bottom", fontsize=10, fontweight="bold")
+                ha="center", va="bottom", fontsize=10, color="#404040")
     ax.set_xlabel("Ano base de defesa")
     ax.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL em Ciências Humanas")
     ax.set_xticks(anos)

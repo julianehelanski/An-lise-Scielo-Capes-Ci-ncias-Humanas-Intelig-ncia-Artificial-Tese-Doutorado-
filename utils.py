@@ -41,7 +41,8 @@ def aplicar_estilo_padrao():
     plt.rcParams['savefig.edgecolor'] = 'none'
     plt.rcParams['figure.dpi'] = 100
     plt.rcParams['savefig.dpi'] = 300
-    # Tipografia: tamanhos consistentes, sem bold gratuito.
+    # Tipografia: fonte sans-serif única, tamanhos consistentes, sem bold.
+    plt.rcParams['font.family'] = 'DejaVu Sans'
     plt.rcParams['font.size'] = 10
     plt.rcParams['axes.titlesize'] = 11
     plt.rcParams['axes.labelsize'] = 10
@@ -356,38 +357,45 @@ def eixo_ptbr(ax, eixo: str = "x") -> None:
 # A bolinha é a forma comum a gráficos, bolhas e nós da rede.
 # ---------------------------------------------------------------------------
 GUIA_COR = "#e9eef2"     # linha-guia sutil
-_TXT = "#1a1a1a"
-_TXT_FRACO = "#6b6b6b"
+# Tipografia padrão das figuras (decisão de 27/06/2026): sem título embutido
+# (a legenda do LaTeX titula), sem negrito, sem preto puro. Texto em cinza
+# escuro suave; notas e descritores em cinza médio. Fonte sans-serif única.
+_TXT = "#404040"         # rótulos e números (cinza escuro, não preto)
+_TXT_FRACO = "#8a8a8a"   # notas, percentuais, descritores de painel
+FONTE = "DejaVu Sans"
 PONTO_S = 200            # tamanho do marcador
 HALO_S = 520             # tamanho do halo
 HALO_ALPHA = 0.18
 
 
 def estilo_editorial(ax, titulo=None, subtitulo=None, nota=None) -> None:
-    """Remove molduras/grade/ticks e posiciona título + subtítulo + nota."""
+    """Remove molduras/grade/ticks. Sem título embutido: ``titulo`` e
+    ``subtitulo``, quando passados, viram descritores discretos (cinza, sem
+    negrito) para distinguir painéis; ``nota`` é a legenda curta em itálico.
+    O título de fato fica na legenda (caption) do LaTeX."""
     for s in ax.spines.values():
         s.set_visible(False)
     ax.tick_params(left=False, bottom=False)
     ax.grid(False)
     if titulo is not None:
-        ax.text(0, 1.11, titulo, transform=ax.transAxes, fontsize=13,
-                fontweight="bold", color=_TXT)
+        ax.text(0, 1.06, titulo, transform=ax.transAxes, fontsize=10.5,
+                color="#5a5a5a")
     if subtitulo is not None:
-        ax.text(0, 1.04, subtitulo, transform=ax.transAxes, fontsize=9.5,
+        ax.text(0, 1.015, subtitulo, transform=ax.transAxes, fontsize=9,
                 color=_TXT_FRACO)
     if nota is not None:
         ax.text(0, -0.14, nota, transform=ax.transAxes, fontsize=8.5,
-                style="italic", color="#8a8a8a")
+                style="italic", color=_TXT_FRACO)
 
 
 def _rotulo_num_pct(ax, x, i, num_str, pct_str, mx) -> None:
     # Folga em pontos (não em unidades de dado): o número fica sempre à
     # direita da bolinha, sem encostar, mesmo quando o eixo é curto e o
     # marcador ocupa uma fração grande do intervalo (ex.: painéis do
-    # comparativo, com mx pequeno).
+    # comparativo, com mx pequeno). Sem negrito, em cinza.
     t_num = ax.annotate(num_str, xy=(x, i), xytext=(12, 0),
                         textcoords="offset points", va="center", ha="left",
-                        fontsize=10.5, fontweight="bold", color=_TXT)
+                        fontsize=10, color=_TXT)
     if pct_str is not None:
         # Ancora o percentual à borda direita real do número (medida no
         # desenho), com folga fixa em pontos: nunca encosta, independe da
