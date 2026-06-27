@@ -140,7 +140,9 @@ def figh02_temporal_humanas(df: pd.DataFrame) -> None:
     ax.set_xlabel("ano base de defesa", fontsize=9, color="#6b6b6b")
     ax.set_ylabel("trabalhos em Ciências Humanas (IA/ML/DL)", fontsize=9, color="#6b6b6b")
     ax.set_xticks(anos)
-    ax.set_ylim(0, max(totais) * 1.16)
+    # Folga abaixo do 0: bolinhas em valor zero (ex.: Doutorado Profissional)
+    # não são cortadas pela borda inferior do eixo.
+    ax.set_ylim(-max(totais) * 0.03, max(totais) * 1.16)
     ax.set_xlim(anos[0] - 0.15, anos[-1] + 1.4)
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
