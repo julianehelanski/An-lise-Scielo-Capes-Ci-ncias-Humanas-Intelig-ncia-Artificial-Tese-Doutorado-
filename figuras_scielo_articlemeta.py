@@ -48,7 +48,9 @@ from utils import (
     FIGURAS_DIR,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    dotplot,
     eixo_ptbr,
+    estilo_editorial,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -479,21 +481,12 @@ def fig21_subcampos_dist(df):
     pares.sort(key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    # Cor-assinatura única da base SciELO (azul Okabe-Ito); padronização por base.
-    cor_base = COR_SCIELO
-    fig, ax = plt.subplots(figsize=(10, 5.5))
-    bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, vals):
-        ax.text(bar.get_width() + max(vals) * 0.02,
-                bar.get_y() + bar.get_height()/2,
-                f"{num_ptbr(val)} ({pct_ptbr(val/total*100)}%)",
-                va="center", fontsize=9)
-    ax.set_xlabel(f"Artigos que mencionam o subcampo (N total = {num_ptbr(total)})")
-    ax.set_xlim(0, max(vals) * 1.25)
-    ax.text(0.99, -0.18,
-            "Artigos podem estar em múltiplos subcampos; percentuais somam mais que 100%.",
-            transform=ax.transAxes, ha="right", fontsize=8, style="italic", color="#555")
-    plt.tight_layout()
+    pcts = [v / total * 100 for v in vals]
+    fig, ax = plt.subplots(figsize=(10, 5.2))
+    dotplot(ax, labels, vals, COR_SCIELO, pcts=pcts)
+    estilo_editorial(ax, nota=(
+        f"Artigos que mencionam o subcampo · N = {num_ptbr(total)}. "
+        "Um artigo pode estar em múltiplos subcampos; percentuais somam mais que 100%."))
     out = os.path.join(FIGURAS_DIR, "scielo_21_subcampos_distribuicao.png")
     salvar_figura(out)
     plt.close(fig)

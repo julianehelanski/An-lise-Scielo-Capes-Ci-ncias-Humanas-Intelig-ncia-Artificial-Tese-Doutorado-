@@ -38,6 +38,7 @@ from utils import (
     CORES_INTERMEDIARIAS,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
+    dumbbell,
     eixo_ptbr,
     garantir_diretorio,
     num_ptbr,
@@ -180,18 +181,20 @@ def fig_subcampos_3bases() -> None:
         "SciELO (corpus IA total)": SCIELO_SUB,
         "OpenAlex (Brasil, Humanas)": openalex_sub,
     }
-    x = np.arange(len(SUB_ORDER))
-    largura = 0.26
+    cores = {
+        "CAPES (corpus IA total)": COR_CAPES,
+        "SciELO (corpus IA total)": COR_SCIELO,
+        "OpenAlex (Brasil, Humanas)": COR_OPENALEX,
+    }
+    # Dumbbell: por subcampo, um ponto por base, ligados. Ordena pela média.
+    ordem = sorted(SUB_ORDER, key=lambda s: sum(b.get(s, 0) for b in bases.values()))
+    series = {nm: [bases[nm].get(s, 0) for s in ordem] for nm in bases}
 
-    fig, ax = plt.subplots(figsize=(11, 6))
-    for i, (nome, dados) in enumerate(bases.items()):
-        valores = [dados.get(s, 0) for s in SUB_ORDER]
-        ax.bar(x + (i - 1) * largura, valores, largura, label=nome,
-               color=[COR_CAPES, COR_SCIELO, COR_OPENALEX][i])
-    ax.set_xticks(x)
-    ax.set_xticklabels(SUB_ORDER)
-    ax.set_ylabel("% do corpus de IA da base (multi-label)")
-    ax.legend(fontsize=8)
+    fig, ax = plt.subplots(figsize=(11, 5.2))
+    dumbbell(ax, ordem, series, cores)
+    eixo_ptbr(ax, "x")
+    ax.set_xlabel("% do corpus de IA da base (multi-label)")
+    ax.legend(loc="lower right", frameon=False, fontsize=9)
     _salvar(fig, "openalex_04_subcampos_3bases.png")
 
 

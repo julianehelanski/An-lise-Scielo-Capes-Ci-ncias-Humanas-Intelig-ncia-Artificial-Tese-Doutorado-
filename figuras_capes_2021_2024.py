@@ -43,7 +43,9 @@ from utils import (
     LABEL_GUARDA_CHUVA_CURTO,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    dotplot,
     eixo_ptbr,
+    estilo_editorial,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -512,29 +514,17 @@ def fig21_subcampos_distribuicao(df: pd.DataFrame) -> None:
     for col, label in SUBCAMPO_COLS:
         counts.append(_bool_col(df, col).sum())
     total = len(df)
-    # Ordena visualmente (maior para menor por volume).
-    pares = sorted(zip([l for _, l in SUBCAMPO_COLS], counts, SUBCAMPO_CORES),
-                   key=lambda x: x[1])
+    # Ordena do menor para o maior (dot plot: maior no topo). Base CAPES (verde).
+    pares = sorted(zip([l for _, l in SUBCAMPO_COLS], counts), key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    # Cor-assinatura única da base CAPES (verde Okabe-Ito); padronização por base.
-    cor_base = COR_CAPES
+    pcts = [v / total * 100 for v in vals]
 
-    fig, ax = plt.subplots(figsize=(10, 5.5))
-    bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, vals):
-        ax.text(bar.get_width() + max(vals) * 0.01,
-                bar.get_y() + bar.get_height() / 2,
-                f"{num_ptbr(val)} ({pct_ptbr(val/total*100)}%)",
-                va="center", fontsize=9)
-    ax.set_xlabel(f"Trabalhos que mencionam o subcampo (N total do corpus = {num_ptbr(total)})")
-    ax.set_xlim(0, max(vals) * 1.18)
-    # Nota: percentuais somam mais que 100% porque um trabalho pode estar
-    # em múltiplos subcampos
-    ax.text(0.99, -0.18,
-            "Trabalhos podem estar em múltiplos subcampos; percentuais somam mais que 100%.",
-            transform=ax.transAxes, ha="right", fontsize=8, style="italic", color="#555")
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(10, 5.2))
+    dotplot(ax, labels, vals, COR_CAPES, pcts=pcts)
+    estilo_editorial(ax, nota=(
+        f"Trabalhos que mencionam o subcampo · N = {num_ptbr(total)}. "
+        "Um trabalho pode estar em múltiplos subcampos; percentuais somam mais que 100%."))
     out = os.path.join(FIGURAS_DIR, "capes_21_subcampos_distribuicao.png")
     salvar_figura(out)
     plt.close(fig)

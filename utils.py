@@ -350,6 +350,104 @@ def eixo_ptbr(ax, eixo: str = "x") -> None:
         ax.yaxis.set_major_formatter(fmt)
 
 
+# ---------------------------------------------------------------------------
+# Identidade visual (decisão de 27/06/2026): marcador "bolinha + halo",
+# dot plot de Cleveland, dumbbell e estilo editorial (sem eixos/grade/molduras).
+# A bolinha é a forma comum a gráficos, bolhas e nós da rede.
+# ---------------------------------------------------------------------------
+GUIA_COR = "#e9eef2"     # linha-guia sutil
+_TXT = "#1a1a1a"
+_TXT_FRACO = "#6b6b6b"
+PONTO_S = 200            # tamanho do marcador
+HALO_S = 520             # tamanho do halo
+HALO_ALPHA = 0.18
+
+
+def estilo_editorial(ax, titulo=None, subtitulo=None, nota=None) -> None:
+    """Remove molduras/grade/ticks e posiciona título + subtítulo + nota."""
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ax.tick_params(left=False, bottom=False)
+    ax.grid(False)
+    if titulo is not None:
+        ax.text(0, 1.11, titulo, transform=ax.transAxes, fontsize=13,
+                fontweight="bold", color=_TXT)
+    if subtitulo is not None:
+        ax.text(0, 1.04, subtitulo, transform=ax.transAxes, fontsize=9.5,
+                color=_TXT_FRACO)
+    if nota is not None:
+        ax.text(0, -0.14, nota, transform=ax.transAxes, fontsize=8.5,
+                style="italic", color="#8a8a8a")
+
+
+def _rotulo_num_pct(ax, x, i, num_str, pct_str, mx) -> None:
+    ax.text(x + mx * 0.02, i, num_str, va="center", ha="left",
+            fontsize=10.5, fontweight="bold", color=_TXT)
+    if pct_str is not None:
+        ax.text(x + mx * 0.135, i, pct_str, va="center", ha="left",
+                fontsize=9.5, color=_TXT_FRACO)
+
+
+def dotplot(ax, labels, vals, cores, pcts=None, halo=True, rotulo=True) -> None:
+    """Dot plot de Cleveland com halo + linha-guia (marcador-identidade).
+
+    labels: categorias (eixo Y, do menor para o maior). vals: valores.
+    cores: cor por ponto (lista) ou cor única (str). pcts: percentuais para o
+    rótulo, ou None. Não desenha título — combine com ``estilo_editorial``.
+    """
+    n = len(labels)
+    y = list(range(n))
+    mx = max(vals) if vals else 1
+    if isinstance(cores, str):
+        cores = [cores] * n
+    for i, v in enumerate(vals):
+        ax.plot([0, v], [i, i], color=GUIA_COR, linewidth=1.2, zorder=1)
+    if halo:
+        ax.scatter(vals, y, s=HALO_S, color=cores, alpha=HALO_ALPHA, zorder=2,
+                   edgecolors="none")
+    ax.scatter(vals, y, s=PONTO_S, color=cores, zorder=3, edgecolors="white",
+               linewidths=1.6)
+    if rotulo:
+        for i, v in enumerate(vals):
+            pct = None if pcts is None else f"({pct_ptbr(pcts[i])}%)"
+            _rotulo_num_pct(ax, v, i, num_ptbr(v), pct, mx)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=11, color=_TXT)
+    ax.set_xticks([])
+    ax.set_xlim(0, mx * 1.35)
+    ax.set_ylim(-0.6, n - 0.4)
+
+
+def dumbbell(ax, labels, series, cores, sufixo="") -> None:
+    """Dumbbell: por categoria, um ponto por série ligado por uma linha.
+
+    labels: categorias (eixo Y). series: dict {nome: [valores por categoria]}.
+    cores: dict {nome: cor}. Mantém um eixo X discreto (valores legíveis) com
+    grade vertical sutil; usa o mesmo marcador-identidade (sem halo, para não
+    poluir a comparação). ``sufixo`` é anexado ao rótulo de cada ponto.
+    """
+    n = len(labels)
+    y = list(range(n))
+    nomes = list(series.keys())
+    todos = [v for s in series.values() for v in s]
+    mx = max(todos) if todos else 1
+    for i in range(n):
+        pontos = [series[nm][i] for nm in nomes]
+        ax.plot([min(pontos), max(pontos)], [i, i], color=GUIA_COR,
+                linewidth=2.4, zorder=1, solid_capstyle="round")
+    for nm in nomes:
+        ax.scatter(series[nm], y, s=150, color=cores[nm], zorder=3,
+                   edgecolors="white", linewidths=1.4, label=nm)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=11, color=_TXT)
+    ax.set_xlim(0, mx * 1.12)
+    ax.set_ylim(-0.6, n - 0.4)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    ax.tick_params(left=False, bottom=False)
+    ax.grid(axis="x", linestyle=":", linewidth=0.6, color="#dddddd", zorder=0)
+
+
 def salvar_figura(caminho, fig=None, **kwargs):
     """Salva a figura em PNG e SVG usando o caminho como nome-base.
 

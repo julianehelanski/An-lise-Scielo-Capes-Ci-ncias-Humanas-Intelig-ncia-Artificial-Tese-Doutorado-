@@ -39,6 +39,8 @@ from utils import (
     OKABE_ITO,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    dotplot,
+    estilo_editorial,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -81,24 +83,21 @@ def _cor_area(area: str) -> str:
 
 def figh01_areas_humanas(df: pd.DataFrame) -> None:
     serie = df["NM_AREA_CONHECIMENTO"].fillna("(s/info)").value_counts().sort_values()
-    cores = [_cor_area(a) for a in serie.index]
+    labels = list(serie.index)
+    vals = list(serie.values)
     total = serie.sum()
+    cores = [_cor_area(a) for a in labels]
+    pcts = [v / total * 100 for v in vals]
 
-    fig, ax = plt.subplots(figsize=(10, max(5, len(serie) * 0.35)))
-    bars = ax.barh(serie.index, serie.values, color=cores, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, serie.values):
-        ax.text(bar.get_width() + serie.max() * 0.01,
-                bar.get_y() + bar.get_height() / 2,
-                f"{val} ({pct_ptbr(val/total*100, 1)}%)", va="center", fontsize=8)
-    ax.set_xlabel(f"Trabalhos no campo Tecnologias IA/ML/DL em Ciências Humanas (N = {total})")
-    ax.set_xlim(0, serie.max() * 1.22)
-    # Legenda
+    fig, ax = plt.subplots(figsize=(10, max(5, len(serie) * 0.42)))
+    dotplot(ax, labels, vals, cores, pcts=pcts)
     from matplotlib.patches import Patch
     ax.legend(handles=[
         Patch(color=COR_ANTROPOLOGIA, label="Antropologia"),
         Patch(color=COR_CAPES, label="Outras áreas de Humanas"),
     ], loc="lower right", frameon=False, fontsize=8)
-    plt.tight_layout()
+    estilo_editorial(ax, nota=(
+        f"Trabalhos no campo Tecnologias IA/ML/DL em Ciências Humanas · N = {num_ptbr(total)}."))
     out = os.path.join(FIGURAS_DIR, "capes_h01_areas_humanas.png")
     salvar_figura(out)
     plt.close(fig)
