@@ -126,7 +126,7 @@ def texto_classificacao(df: pd.DataFrame) -> pd.Series:
 
 
 def _cor_por_humanas(label: str) -> str:
-    # Base CAPES em verde; Ciências Humanas (foco) em laranja de destaque.
+    # Base CAPES em verde; Ciências Humanas (foco) em magenta de destaque.
     # Caixa-insensível: os rótulos vêm em maiúsculas ("CIÊNCIAS HUMANAS").
     return COR_DESTAQUE if "humanas" in str(label).lower() else COR_CAPES
 
@@ -136,44 +136,34 @@ def _cor_por_humanas(label: str) -> str:
 # ---------------------------------------------------------------------------
 def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> None:
     counts = df["NM_GRANDE_AREA_CONHECIMENTO"].fillna("(s/info)").value_counts().sort_values()
-    cores = [_cor_por_humanas(a) for a in counts.index]
+    labels = list(counts.index)
+    vals = list(counts.values)
     total = counts.sum()
+    cores = [_cor_por_humanas(a) for a in labels]
+    pcts = [v / total * 100 for v in vals]
+    nota = (f"CAPES · 2021–2024 · N = {num_ptbr(total)}. "
+            "Ciências Humanas em destaque (magenta).")
 
     if totais_universo is not None:
-        # Dois painéis: contagem IA + taxa interna (IA / total da área)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6.5), gridspec_kw={"wspace": 0.45})
+        # Dois painéis (mesma ordem): volume no corpus + taxa interna.
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6.2), gridspec_kw={"wspace": 0.5})
     else:
         fig, ax1 = plt.subplots(figsize=(10, 6))
         ax2 = None
 
-    bars = ax1.barh(counts.index, counts.values, color=cores, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, counts.values):
-        ax1.text(bar.get_width() + total * 0.005,
-                 bar.get_y() + bar.get_height() / 2,
-                 f"{num_ptbr(val)} ({pct_ptbr(val/total*100, 1)}%)",
-                 va="center", fontsize=8)
-    ax1.set_xlabel(f"Trabalhos no campo Tecnologias IA/ML/DL (N = {num_ptbr(total)})")
-    ax1.set_xlim(0, counts.max() * 1.22)
+    dotplot(ax1, labels, vals, cores, pcts=pcts)
+    estilo_editorial(ax1, titulo="Volume no corpus de IA", nota=nota)
 
     if ax2 is not None:
-        taxa = pd.Series({
-            area: counts.get(area, 0) / totais_universo.get(area, np.nan) * 100
-            for area in counts.index
-        }).dropna().sort_values()
-        cores2 = [_cor_por_humanas(a) for a in taxa.index]
-        bars2 = ax2.barh(taxa.index, taxa.values, color=cores2, edgecolor="white", linewidth=0.5)
-        for bar, val in zip(bars2, taxa.values):
-            ax2.text(bar.get_width() + taxa.max() * 0.01,
-                     bar.get_y() + bar.get_height() / 2,
-                     f"{pct_ptbr(val, 1)}%",
-                     va="center", fontsize=8)
-        ax2.set_xlabel("Taxa interna: % da grande área que é sobre IA")
-        ax2.set_xlim(0, taxa.max() * 1.18)
-        ax2.set_yticklabels([])  # eixo Y duplicado, omite
-        eixo_ptbr(ax2, "x")
+        taxa = []
+        for a in labels:
+            t = counts.get(a, 0) / totais_universo.get(a, float("nan")) * 100
+            taxa.append(0.0 if pd.isna(t) else t)
+        rot = [f"{pct_ptbr(t)}%" for t in taxa]
+        dotplot(ax2, labels, taxa, cores, rotulos=rot)
+        ax2.set_yticklabels([])  # eixo Y alinhado ao painel da esquerda
+        estilo_editorial(ax2, titulo="Taxa interna (% da área que toca IA)")
 
-    eixo_ptbr(ax1, "x")
-    plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_11_grande_area_share.png")
     salvar_figura(out)
     plt.close(fig)

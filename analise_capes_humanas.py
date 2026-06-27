@@ -57,8 +57,8 @@ COR_PRINCIPAL = CORES_INTERMEDIARIAS[0]   # mantido para figuras fora do cap.2 (
 # Graus acadêmicos (capes_h02, empilhado): trio qualitativo Okabe-Ito.
 COR_MESTRADO = COR_CAPES                   # verde
 COR_DOUTORADO = OKABE_ITO["azul_claro"]    # azul-claro
-COR_PROFISSIONAL = COR_DESTAQUE            # laranja
-COR_ANTROPOLOGIA = COR_DESTAQUE            # laranja (categoria em foco em capes_h01)
+COR_PROFISSIONAL = COR_DESTAQUE            # magenta
+COR_ANTROPOLOGIA = COR_DESTAQUE            # magenta (categoria em foco em capes_h01)
 COR_OUTRAS = COR_NEUTRO                    # cinza (fallback do capes_h02)
 
 
@@ -74,7 +74,7 @@ def carregar_humanas() -> pd.DataFrame:
 
 
 def _cor_area(area: str) -> str:
-    # Base CAPES em verde; Antropologia (foco) em laranja de destaque.
+    # Base CAPES em verde; Antropologia (foco) em magenta de destaque.
     s = str(area).lower()
     if "antropologia" in s:
         return COR_ANTROPOLOGIA

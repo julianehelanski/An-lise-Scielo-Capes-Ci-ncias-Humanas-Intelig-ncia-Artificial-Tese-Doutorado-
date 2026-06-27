@@ -80,7 +80,7 @@ CORES_INTERMEDIARIAS = [
 #
 # Categórico: Okabe-Ito, à prova de daltonismo. Cada base de dados tem uma
 # cor-assinatura; a categoria em foco da tese (Humanas, Antropologia, Brasil)
-# usa o laranja de destaque; as demais barras usam cinza neutro.
+# usa o magenta de destaque; as demais barras usam cinza neutro.
 # Sequencial (heatmaps): "viridis".
 # =============================================================================
 OKABE_ITO = {
@@ -91,7 +91,7 @@ OKABE_ITO = {
 COR_CAPES = "#009E73"       # verde-azulado
 COR_SCIELO = "#0072B2"      # azul
 COR_OPENALEX = "#D55E00"    # vermelho-alaranjado
-COR_DESTAQUE = "#E69F00"    # laranja: categoria em foco (Humanas/Antropologia/Brasil)
+COR_DESTAQUE = "#CC79A7"    # magenta: categoria em foco (Humanas/Antropologia/Brasil)
 COR_NEUTRO = "#999999"      # cinza: demais
 CMAP_SEQUENCIAL = "viridis"  # heatmaps e escalas sequenciais
 
@@ -381,19 +381,26 @@ def estilo_editorial(ax, titulo=None, subtitulo=None, nota=None) -> None:
 
 
 def _rotulo_num_pct(ax, x, i, num_str, pct_str, mx) -> None:
-    ax.text(x + mx * 0.02, i, num_str, va="center", ha="left",
-            fontsize=10.5, fontweight="bold", color=_TXT)
+    t_num = ax.text(x + mx * 0.025, i, num_str, va="center", ha="left",
+                    fontsize=10.5, fontweight="bold", color=_TXT)
     if pct_str is not None:
-        ax.text(x + mx * 0.135, i, pct_str, va="center", ha="left",
-                fontsize=9.5, color=_TXT_FRACO)
+        # Ancora o percentual à borda direita real do número (medida no
+        # desenho), com folga fixa em pontos: nunca encosta, independe da
+        # quantidade de dígitos e da escala do eixo.
+        ax.annotate(pct_str, xycoords=t_num, xy=(1, 0.5), xytext=(5, 0),
+                    textcoords="offset points", va="center", ha="left",
+                    fontsize=9.5, color=_TXT_FRACO)
 
 
-def dotplot(ax, labels, vals, cores, pcts=None, halo=True, rotulo=True) -> None:
+def dotplot(ax, labels, vals, cores, pcts=None, rotulos=None, halo=False,
+            rotulo=True) -> None:
     """Dot plot de Cleveland com halo + linha-guia (marcador-identidade).
 
     labels: categorias (eixo Y, do menor para o maior). vals: valores.
     cores: cor por ponto (lista) ou cor única (str). pcts: percentuais para o
-    rótulo, ou None. Não desenha título — combine com ``estilo_editorial``.
+    rótulo entre parênteses, ou None. rotulos: rótulo principal já formatado
+    (ex.: "14,3%") por ponto; se None, usa ``num_ptbr(val)``. Não desenha
+    título — combine com ``estilo_editorial``.
     """
     n = len(labels)
     y = list(range(n))
@@ -409,12 +416,13 @@ def dotplot(ax, labels, vals, cores, pcts=None, halo=True, rotulo=True) -> None:
                linewidths=1.6)
     if rotulo:
         for i, v in enumerate(vals):
+            num = rotulos[i] if rotulos is not None else num_ptbr(v)
             pct = None if pcts is None else f"({pct_ptbr(pcts[i])}%)"
-            _rotulo_num_pct(ax, v, i, num_ptbr(v), pct, mx)
+            _rotulo_num_pct(ax, v, i, num, pct, mx)
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=11, color=_TXT)
     ax.set_xticks([])
-    ax.set_xlim(0, mx * 1.35)
+    ax.set_xlim(0, mx * 1.45)
     ax.set_ylim(-0.6, n - 0.4)
 
 

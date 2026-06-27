@@ -204,7 +204,7 @@ def texto_classificacao(df):
 
 
 def _cor_sa(label):
-    # Base SciELO em azul; Human Sciences (foco) em laranja de destaque.
+    # Base SciELO em azul; Human Sciences (foco) em magenta de destaque.
     return COR_DESTAQUE if "Human Sciences" == label else COR_SCIELO
 
 
@@ -213,43 +213,34 @@ def _cor_sa(label):
 # ---------------------------------------------------------------------------
 def fig11_subject_area(df, universo):
     counts = df["subject_area_primary"].value_counts().sort_values()
+    labels = list(counts.index)
+    vals = list(counts.values)
     total = counts.sum()
-    cores = [_cor_sa(l) for l in counts.index]
+    cores = [_cor_sa(l) for l in labels]
+    pcts = [v / total * 100 for v in vals]
     univ_counts = _counts_universo(universo)
+    nota = (f"SciELO Brasil · 2021–2024 · N = {num_ptbr(total)}. "
+            "Human Sciences em destaque (magenta).")
 
     if univ_counts is not None:
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), gridspec_kw={"wspace": 0.55})
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), gridspec_kw={"wspace": 0.6})
     else:
         fig, ax1 = plt.subplots(figsize=(10, 6))
         ax2 = None
 
-    bars = ax1.barh(counts.index, counts.values, color=cores, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, counts.values):
-        ax1.text(bar.get_width() + total * 0.005,
-                 bar.get_y() + bar.get_height()/2,
-                 f"{val} ({pct_ptbr(val/total*100, 1)}%)",
-                 va="center", fontsize=9)
-    ax1.set_xlabel(f"Artigos no campo Tecnologias IA/ML/DL (N = {total})")
-    ax1.set_xlim(0, counts.max() * 1.25)
+    dotplot(ax1, labels, vals, cores, pcts=pcts)
+    estilo_editorial(ax1, titulo="Volume no corpus de IA", nota=nota)
 
     if ax2 is not None:
-        taxa = pd.Series({
-            sa: counts.get(sa, 0) / univ_counts.get(sa, np.nan) * 100
-            for sa in counts.index
-        }).dropna().sort_values()
-        cores2 = [_cor_sa(l) for l in taxa.index]
-        bars2 = ax2.barh(taxa.index, taxa.values, color=cores2, edgecolor="white", linewidth=0.5)
-        for bar, val in zip(bars2, taxa.values):
-            ax2.text(bar.get_width() + taxa.max() * 0.02,
-                     bar.get_y() + bar.get_height()/2,
-                     f"{pct_ptbr(val, 2)}%", va="center", fontsize=9)
-        ax2.set_xlabel("Taxa interna: % da subject area que é sobre o campo")
-        ax2.set_xlim(0, taxa.max() * 1.20)
+        taxa = []
+        for sa in labels:
+            t = counts.get(sa, 0) / univ_counts.get(sa, float("nan")) * 100
+            taxa.append(0.0 if pd.isna(t) else t)
+        rot = [f"{pct_ptbr(t, 2)}%" for t in taxa]
+        dotplot(ax2, labels, taxa, cores, rotulos=rot)
         ax2.set_yticklabels([])
-        eixo_ptbr(ax2, "x")
+        estilo_editorial(ax2, titulo="Taxa interna (% da área que toca o campo)")
 
-    eixo_ptbr(ax1, "x")
-    plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_11_subject_area_share.png")
     salvar_figura(out)
     plt.close(fig)

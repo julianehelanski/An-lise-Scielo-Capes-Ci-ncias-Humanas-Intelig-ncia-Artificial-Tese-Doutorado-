@@ -38,8 +38,10 @@ from utils import (
     CORES_INTERMEDIARIAS,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
+    dotplot,
     dumbbell,
     eixo_ptbr,
+    estilo_editorial,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -52,7 +54,7 @@ aplicar_estilo_padrao()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_OPENALEX_DIR = os.path.join(BASE_DIR, "dados_openalex")
 
-COR_BRASIL = COR_DESTAQUE   # laranja: Brasil em destaque (categoria em foco)
+COR_BRASIL = COR_DESTAQUE   # magenta: Brasil em destaque (categoria em foco)
 COR_DEST = COR_OPENALEX     # vermelho-alaranjado: cor-assinatura da base OpenAlex
 COR_NEUTRA = COR_NEUTRO     # cinza: demais
 
@@ -88,7 +90,7 @@ def _ler_csv(nome: str) -> pd.DataFrame | None:
 
 
 def _cores(rotulos, destaque="Brazil", topo_idx=0):
-    """Cinza para todos; laranja de destaque no Brasil (categoria em foco)."""
+    """Cinza para todos; magenta de destaque no Brasil (categoria em foco)."""
     cores = []
     for i, r in enumerate(rotulos):
         if isinstance(r, str) and ("brazil" in r.lower() or "brasil" in r.lower()):
@@ -104,16 +106,17 @@ def fig_ranking_paises(top: int = 15) -> None:
     if df is None:
         return
     df = df[df["pais_codigo"].astype(str).str.strip() != ""].copy()
+    # menor embaixo (dot plot): ordena ascendente.
     df = df.sort_values("count_ia_hum", ascending=False).head(top).iloc[::-1]
+    labels = df["pais"].astype(str).tolist()
+    vals = df["count_ia_hum"].tolist()
+    cores = _cores(labels)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    cores = _cores(df["pais"].tolist(), topo_idx=len(df) - 1)  # topo está no fim (iloc invertido)
-    ax.barh(df["pais"].astype(str), df["count_ia_hum"], color=cores)
-    for y, v in enumerate(df["count_ia_hum"]):
-        ax.text(v, y, f" {num_ptbr(int(v))}".replace(",", "."), va="center", fontsize=8)
-    ax.set_xlabel("Publicações de IA nas Humanidades (2016–2024)")
-    ax.margins(x=0.12)
-    eixo_ptbr(ax, "x")
+    fig, ax = plt.subplots(figsize=(10, 6.5))
+    dotplot(ax, labels, vals, cores)
+    estilo_editorial(ax, nota=(
+        "Publicações de IA nas Humanidades (2016–2024), definição por conceito do "
+        "OpenAlex. Brasil em destaque (magenta)."))
     _salvar(fig, "openalex_01_ranking_paises.png")
 
 
@@ -123,17 +126,19 @@ def fig_taxa_interna_paises(top: int = 15) -> None:
     if df is None:
         return
     df = df[df["pais_codigo"].astype(str).str.strip() != ""].copy()
-    # Top por volume (mesmos países da fig 1), ordenados por taxa para leitura.
+    # Top por volume (mesmos países da fig 1), ordenados por taxa (menor embaixo).
     df = df.sort_values("count_ia_hum", ascending=False).head(top)
     df = df.sort_values("taxa_interna_%", ascending=True)
+    labels = df["pais"].astype(str).tolist()
+    vals = df["taxa_interna_%"].tolist()
+    cores = _cores(labels)
+    rot = [f"{pct_ptbr(v)}%" for v in vals]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    cores = _cores(df["pais"].tolist(), topo_idx=-1)
-    ax.barh(df["pais"].astype(str), df["taxa_interna_%"], color=cores)
-    for y, v in enumerate(df["taxa_interna_%"]):
-        ax.text(v, y, f" {pct_ptbr(v, 1)}%", va="center", fontsize=8)
-    ax.set_xlabel("Taxa interna: % das Humanidades do país que tocam IA")
-    ax.margins(x=0.12)
+    fig, ax = plt.subplots(figsize=(10, 6.5))
+    dotplot(ax, labels, vals, cores, rotulos=rot)
+    estilo_editorial(ax, nota=(
+        "Taxa interna: % das Humanidades do país que tocam IA (2016–2024). "
+        "Brasil em destaque (magenta)."))
     _salvar(fig, "openalex_02_taxa_interna_paises.png")
 
 

@@ -31,6 +31,8 @@ from utils import (
     DADOS_SCIELO_DIR,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
+    dotplot,
+    dumbbell,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -129,53 +131,46 @@ def fig_comparativa(sci: pd.DataFrame, cap: pd.DataFrame) -> None:
     ax.set_xticks(range(ANO_MIN, ANO_MAX + 1))
     ax.legend(loc="upper left", frameon=False)
 
-    # ----- (B) Distribuição por subcampo (lado a lado) -----
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+
+    def _painel_dot(ax, labels, vals, cor, titulo):
+        dotplot(ax, list(labels), list(vals), cor)
+        for s in ax.spines.values():
+            s.set_visible(False)
+        ax.tick_params(left=False)
+        ax.set_title(titulo, fontsize=10, loc="left", fontweight="bold", color="#1a1a1a")
+
+    # ----- (B) Distribuição por subcampo (dumbbell SciELO × CAPES) -----
     ax = axes[0, 1]
     labels = [l for _, l in SUBCAMPOS]
-    sci_vals = []
-    cap_vals = []
+    sci_vals, cap_vals = [], []
     for col, _ in SUBCAMPOS:
         sci_vals.append(int(_bool(sci[col]).sum()) if col in sci.columns else 0)
         cap_vals.append(int(_bool(cap[col]).sum()) if col in cap.columns else 0)
-    # Normaliza pra ficar % de cada base
-    sci_pct = np.array(sci_vals) / max(len(sci), 1) * 100
-    cap_pct = np.array(cap_vals) / max(len(cap), 1) * 100
-    x = np.arange(len(labels))
-    w = 0.38
-    ax.barh(x + w/2, sci_pct, w, color=COR_SCIELO, label="SciELO Human Sciences", edgecolor="white")
-    ax.barh(x - w/2, cap_pct, w, color=COR_CAPES, label="CAPES Humanas", edgecolor="white")
-    for i, (sv, cv) in enumerate(zip(sci_pct, cap_pct)):
-        ax.text(sv + 1, i + w/2, f"{pct_ptbr(sv, 1)}%", va="center", fontsize=7, color=COR_SCIELO)
-        ax.text(cv + 1, i - w/2, f"{pct_ptbr(cv, 1)}%", va="center", fontsize=7, color=COR_CAPES)
-    ax.set_yticks(x)
-    ax.set_yticklabels([l.replace(" & ", "\n& ").replace(" (", "\n(") for l in labels], fontsize=8)
-    ax.set_xlabel("% do corpus que toca o subcampo")
-    ax.set_title("Distribuição por subcampo (% do corpus de cada base)", fontsize=10)
-    ax.legend(loc="lower right", frameon=False)
+    sci_pct = (np.array(sci_vals) / max(len(sci), 1) * 100).tolist()
+    cap_pct = (np.array(cap_vals) / max(len(cap), 1) * 100).tolist()
+    ordem = sorted(range(len(labels)), key=lambda i: (sci_pct[i] + cap_pct[i]) / 2)
+    labs_b = [labels[i].replace(" & ", "\n& ").replace(" (", "\n(") for i in ordem]
+    series = {"SciELO Human Sciences": [sci_pct[i] for i in ordem],
+              "CAPES Humanas": [cap_pct[i] for i in ordem]}
+    cores_b = {"SciELO Human Sciences": COR_SCIELO, "CAPES Humanas": COR_CAPES}
+    dumbbell(ax, labs_b, series, cores_b)
+    ax.tick_params(axis="y", labelsize=8)
+    ax.set_title("Distribuição por subcampo (% do corpus de cada base)", fontsize=10,
+                 loc="left", fontweight="bold", color="#1a1a1a")
+    ax.legend(loc="lower right", frameon=False, fontsize=8)
 
     # ----- (C) Top periódicos SciELO -----
-    ax = axes[1, 0]
     top_per = sci["periodico"].fillna("(s/info)").value_counts().head(10).sort_values()
-    bars = ax.barh(top_per.index, top_per.values, color=COR_SCIELO, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, top_per.values):
-        ax.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height()/2,
-                f"{val}", va="center", fontsize=8)
-    ax.set_title("SciELO Human Sciences: top 10 periódicos", fontsize=10)
-    ax.set_xlabel("Artigos sobre IA/ML/DL")
-    ax.set_xlim(0, max(top_per.values) * 1.18)
-    # Trunca labels longas
-    ax.set_yticklabels([t[:38] + "…" if len(t) > 38 else t for t in top_per.index], fontsize=8)
+    labs_c = [t[:38] + "…" if len(t) > 38 else t for t in top_per.index]
+    _painel_dot(axes[1, 0], labs_c, top_per.values, COR_SCIELO,
+                "SciELO Human Sciences: top 10 periódicos")
 
     # ----- (D) Top áreas CAPES Humanas -----
-    ax = axes[1, 1]
     top_area = cap["NM_AREA_CONHECIMENTO"].fillna("(s/info)").value_counts().head(10).sort_values()
-    bars = ax.barh(top_area.index, top_area.values, color=COR_CAPES, edgecolor="white", linewidth=0.5)
-    for bar, val in zip(bars, top_area.values):
-        ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f"{val}", va="center", fontsize=8)
-    ax.set_title("CAPES Humanas: top 10 áreas de conhecimento", fontsize=10)
-    ax.set_xlabel("Defesas sobre IA/ML/DL")
-    ax.set_xlim(0, max(top_area.values) * 1.18)
+    _painel_dot(axes[1, 1], list(top_area.index), top_area.values, COR_CAPES,
+                "CAPES Humanas: top 10 áreas de conhecimento")
 
     out = os.path.join(FIGURAS_DIR, "comparativo_scielo_capes_2026.png")
     plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white")
