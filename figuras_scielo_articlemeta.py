@@ -40,6 +40,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
 from utils import (
+    CMAP_SEQUENCIAL,
+    COR_DESTAQUE,
+    COR_SCIELO,
     CORES_INTERMEDIARIAS,
     DADOS_SCIELO_DIR,
     FIGURAS_DIR,
@@ -199,7 +202,8 @@ def texto_classificacao(df):
 
 
 def _cor_sa(label):
-    return COR_HUMANAS if "Human Sciences" == label else COR_NEUTRA
+    # Base SciELO em azul; Human Sciences (foco) em laranja de destaque.
+    return COR_DESTAQUE if "Human Sciences" == label else COR_SCIELO
 
 
 # ---------------------------------------------------------------------------
@@ -299,8 +303,7 @@ def fig13_heatmap_sa_keyword(df):
     norm = bruto.div(bruto.sum(axis=0).replace(0, np.nan), axis=1).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_red", ["#FFFFFF", COR_HUMANAS])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
+    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm.values.max())
     ax.set_xticks(range(len(norm.columns)))
     ax.set_xticklabels(norm.columns, rotation=40, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm.index)))
@@ -312,7 +315,7 @@ def fig13_heatmap_sa_keyword(df):
             if raw > 0:
                 ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({raw})",
                         ha="center", va="center",
-                        color="white" if v > norm.values.max() * 0.55 else "#333",
+                        color="#333" if v > norm.values.max() * 0.6 else "white",
                         fontsize=7)
     cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
     cbar.set_label("% do termo concentrado na subject area", fontsize=8)
@@ -412,8 +415,8 @@ def fig16_top_periodicos(df):
     ax.set_xlim(0, serie.max() * 1.12)
     from matplotlib.patches import Patch
     ax.legend(handles=[
-        Patch(color=COR_HUMANAS, label="Periódico em Human Sciences"),
-        Patch(color=COR_NEUTRA, label="Outras subject areas"),
+        Patch(color=COR_DESTAQUE, label="Periódico em Human Sciences"),
+        Patch(color=COR_SCIELO, label="Outras subject areas"),
     ], loc="lower right", frameon=False, fontsize=8)
     # Trunca labels longas
     ax.set_yticklabels([t[:42] + "…" if len(t) > 42 else t for t in serie.index], fontsize=8)
@@ -476,9 +479,8 @@ def fig21_subcampos_dist(df):
     pares.sort(key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    # Cor-assinatura única da base SciELO (azul); padronização por base de dados,
-    # em vez de uma cor por subcampo. Ver capes (verde) e openalex_04 (vermelho).
-    cor_base = CORES_INTERMEDIARIAS[3]
+    # Cor-assinatura única da base SciELO (azul Okabe-Ito); padronização por base.
+    cor_base = COR_SCIELO
     fig, ax = plt.subplots(figsize=(10, 5.5))
     bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
     for bar, val in zip(bars, vals):
@@ -514,8 +516,7 @@ def fig22_heatmap_subcampo_sa(df):
     norm = bruto.div(bruto.sum(axis=1).replace(0, np.nan), axis=0).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_blue", ["#FFFFFF", COR_DEST])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
+    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm.values.max())
     ax.set_xticks(range(len(norm.columns)))
     ax.set_xticklabels(norm.columns, rotation=20, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm.index)))
@@ -527,7 +528,7 @@ def fig22_heatmap_subcampo_sa(df):
             if raw > 0:
                 ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({raw})",
                         ha="center", va="center",
-                        color="white" if v > norm.values.max() * 0.5 else "#333",
+                        color="#333" if v > norm.values.max() * 0.6 else "white",
                         fontsize=7)
     cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
     cbar.set_label("% da subject area dentro do subcampo (por linha)", fontsize=8)

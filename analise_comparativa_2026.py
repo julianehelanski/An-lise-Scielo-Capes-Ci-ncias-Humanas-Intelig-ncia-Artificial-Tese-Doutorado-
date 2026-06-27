@@ -39,8 +39,8 @@ from utils import (
 aplicar_estilo_padrao()
 garantir_diretorio(FIGURAS_DIR)
 
-COR_SCIELO = CORES_INTERMEDIARIAS[3]   # azul
-COR_CAPES = CORES_INTERMEDIARIAS[0]    # vermelho
+COR_SCIELO = "#0072B2"   # azul (cor-assinatura SciELO, Okabe-Ito)
+COR_CAPES = "#009E73"    # verde (cor-assinatura CAPES, Okabe-Ito)
 
 ANO_MIN = 2021
 ANO_MAX = 2024

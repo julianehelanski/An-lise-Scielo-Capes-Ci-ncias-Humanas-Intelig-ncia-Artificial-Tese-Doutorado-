@@ -75,6 +75,26 @@ CORES_INTERMEDIARIAS = [
     '#E0E0E0',  # 11: Very Light Gray
 ]
 
+# =============================================================================
+# Paleta padrão das figuras (decisão de 27/06/2026).
+#
+# Categórico: Okabe-Ito, à prova de daltonismo. Cada base de dados tem uma
+# cor-assinatura; a categoria em foco da tese (Humanas, Antropologia, Brasil)
+# usa o laranja de destaque; as demais barras usam cinza neutro.
+# Sequencial (heatmaps): "viridis".
+# =============================================================================
+OKABE_ITO = {
+    "preto": "#000000", "laranja": "#E69F00", "azul_claro": "#56B4E9",
+    "verde": "#009E73", "amarelo": "#F0E442", "azul": "#0072B2",
+    "vermelho": "#D55E00", "roxo": "#CC79A7", "cinza": "#999999",
+}
+COR_CAPES = "#009E73"       # verde-azulado
+COR_SCIELO = "#0072B2"      # azul
+COR_OPENALEX = "#D55E00"    # vermelho-alaranjado
+COR_DESTAQUE = "#E69F00"    # laranja: categoria em foco (Humanas/Antropologia/Brasil)
+COR_NEUTRO = "#999999"      # cinza: demais
+CMAP_SEQUENCIAL = "viridis"  # heatmaps e escalas sequenciais
+
 
 # =============================================================================
 # Subcampos: reconhece que IA, ML, deep learning, LLMs e tecnologias correlatas

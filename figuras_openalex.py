@@ -30,6 +30,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from utils import (
+    COR_CAPES,
+    COR_DESTAQUE,
+    COR_NEUTRO,
+    COR_OPENALEX,
+    COR_SCIELO,
     CORES_INTERMEDIARIAS,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
@@ -46,9 +51,9 @@ aplicar_estilo_padrao()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_OPENALEX_DIR = os.path.join(BASE_DIR, "dados_openalex")
 
-COR_BRASIL = CORES_INTERMEDIARIAS[0]   # vermelho-muted (Brasil em destaque)
-COR_DEST = CORES_INTERMEDIARIAS[3]     # azul (1º lugar)
-COR_NEUTRA = CORES_INTERMEDIARIAS[9]   # cinza-azulado (demais)
+COR_BRASIL = COR_DESTAQUE   # laranja: Brasil em destaque (categoria em foco)
+COR_DEST = COR_OPENALEX     # vermelho-alaranjado: cor-assinatura da base OpenAlex
+COR_NEUTRA = COR_NEUTRO     # cinza: demais
 
 # Subcampos canônicos das outras bases (decisoes_metodologicas.md I.5 e II.5),
 # em % do respectivo corpus IA. OpenAlex é lido do resumo_BR.csv em tempo real.
@@ -82,13 +87,11 @@ def _ler_csv(nome: str) -> pd.DataFrame | None:
 
 
 def _cores(rotulos, destaque="Brazil", topo_idx=0):
-    """Cinza para todos; vermelho no Brasil; azul no 1º colocado."""
+    """Cinza para todos; laranja de destaque no Brasil (categoria em foco)."""
     cores = []
     for i, r in enumerate(rotulos):
         if isinstance(r, str) and ("brazil" in r.lower() or "brasil" in r.lower()):
             cores.append(COR_BRASIL)
-        elif i == topo_idx:
-            cores.append(COR_DEST)
         else:
             cores.append(COR_NEUTRA)
     return cores
@@ -149,9 +152,9 @@ def fig_brasil_temporal() -> None:
 
     ax2 = ax1.twinx()
     ax2.plot(df["ano"].astype(int).astype(str), df["taxa_interna_%"],
-             color=COR_BRASIL, marker="o", linewidth=2, label="Taxa interna")
-    ax2.set_ylabel("Taxa interna (%)", color=COR_BRASIL)
-    ax2.tick_params(axis="y", labelcolor=COR_BRASIL)
+             color=COR_SCIELO, marker="o", linewidth=2, label="Taxa interna")
+    ax2.set_ylabel("Taxa interna (%)", color=COR_SCIELO)
+    ax2.tick_params(axis="y", labelcolor=COR_SCIELO)
     ax2.grid(False)
     eixo_ptbr(ax1, "y")
     eixo_ptbr(ax2, "y")
@@ -184,7 +187,7 @@ def fig_subcampos_3bases() -> None:
     for i, (nome, dados) in enumerate(bases.items()):
         valores = [dados.get(s, 0) for s in SUB_ORDER]
         ax.bar(x + (i - 1) * largura, valores, largura, label=nome,
-               color=CORES_INTERMEDIARIAS[[2, 3, 0][i]])
+               color=[COR_CAPES, COR_SCIELO, COR_OPENALEX][i])
     ax.set_xticks(x)
     ax.set_xticklabels(SUB_ORDER)
     ax.set_ylabel("% do corpus de IA da base (multi-label)")

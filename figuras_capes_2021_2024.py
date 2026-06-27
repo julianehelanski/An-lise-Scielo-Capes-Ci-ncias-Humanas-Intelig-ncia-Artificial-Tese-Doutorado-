@@ -32,6 +32,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
 from utils import (
+    CMAP_SEQUENCIAL,
+    COR_CAPES,
+    COR_DESTAQUE,
+    COR_NEUTRO,
     CORES_INTERMEDIARIAS,
     DADOS_CAPES_DIR,
     FIGURAS_DIR,
@@ -120,8 +124,9 @@ def texto_classificacao(df: pd.DataFrame) -> pd.Series:
 
 
 def _cor_por_humanas(label: str) -> str:
+    # Base CAPES em verde; Ciências Humanas (foco) em laranja de destaque.
     # Caixa-insensível: os rótulos vêm em maiúsculas ("CIÊNCIAS HUMANAS").
-    return COR_HUMANAS if "humanas" in str(label).lower() else COR_NEUTRA
+    return COR_DESTAQUE if "humanas" in str(label).lower() else COR_CAPES
 
 
 # ---------------------------------------------------------------------------
@@ -234,8 +239,7 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
     norm_col = bruto.div(bruto.sum(axis=0).replace(0, np.nan), axis=1).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 6.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_red", ["#FFFFFF", COR_HUMANAS])
-    im = ax.imshow(norm_col.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm_col.values.max())
+    im = ax.imshow(norm_col.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm_col.values.max())
     ax.set_xticks(range(len(norm_col.columns)))
     ax.set_xticklabels(norm_col.columns, rotation=40, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm_col.index)))
@@ -247,7 +251,7 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
             if raw > 0:
                 txt = f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})"
                 ax.text(j, i, txt, ha="center", va="center",
-                        color="white" if v > norm_col.values.max() * 0.55 else "#333",
+                        color="#333" if v > norm_col.values.max() * 0.6 else "white",
                         fontsize=6.5)
     cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
     cbar.set_label("% do termo concentrado na grande área", fontsize=8)
@@ -513,9 +517,8 @@ def fig21_subcampos_distribuicao(df: pd.DataFrame) -> None:
                    key=lambda x: x[1])
     labels = [p[0] for p in pares]
     vals = [p[1] for p in pares]
-    # Cor-assinatura única da base CAPES (verde); padronização por base de dados,
-    # em vez de uma cor por subcampo. Ver scielo (azul) e openalex_04 (vermelho).
-    cor_base = CORES_INTERMEDIARIAS[2]
+    # Cor-assinatura única da base CAPES (verde Okabe-Ito); padronização por base.
+    cor_base = COR_CAPES
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
     bars = ax.barh(labels, vals, color=cor_base, edgecolor="white", linewidth=0.5)
@@ -555,8 +558,7 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
     norm = bruto.div(bruto.sum(axis=1).replace(0, np.nan), axis=0).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(13, 5.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_blue", ["#FFFFFF", CORES_INTERMEDIARIAS[3]])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
+    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm.values.max())
     ax.set_xticks(range(len(norm.columns)))
     ax.set_xticklabels(norm.columns, rotation=30, ha="right", fontsize=8)
     ax.set_yticks(range(len(norm.index)))
@@ -568,7 +570,7 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
             if raw > 0:
                 ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})",
                         ha="center", va="center",
-                        color="white" if v > norm.values.max() * 0.5 else "#333",
+                        color="#333" if v > norm.values.max() * 0.6 else "white",
                         fontsize=7)
     cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
     cbar.set_label("% do subcampo concentrado na grande área", fontsize=8)

@@ -30,9 +30,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from utils import (
+    COR_CAPES,
+    COR_DESTAQUE,
+    COR_NEUTRO,
     CORES_INTERMEDIARIAS,
     DADOS_CAPES_DIR,
     FIGURAS_DIR,
+    OKABE_ITO,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
@@ -47,12 +51,13 @@ garantir_diretorio(FIGURAS_DIR)
 CSV_IA = os.path.join(DADOS_CAPES_DIR, "capes_2021_2024_ia.csv")
 CSV_AUDIT = os.path.join(DADOS_CAPES_DIR, "capes_2021_2024_ia_auditoria.xlsx")
 
-COR_PRINCIPAL = CORES_INTERMEDIARIAS[0]
-COR_MESTRADO = CORES_INTERMEDIARIAS[3]
-COR_DOUTORADO = CORES_INTERMEDIARIAS[1]
-COR_PROFISSIONAL = CORES_INTERMEDIARIAS[2]
-COR_ANTROPOLOGIA = CORES_INTERMEDIARIAS[6]
-COR_OUTRAS = CORES_INTERMEDIARIAS[9]
+COR_PRINCIPAL = CORES_INTERMEDIARIAS[0]   # mantido para figuras fora do cap.2 (h04/h05)
+# Graus acadêmicos (capes_h02, empilhado): trio qualitativo Okabe-Ito.
+COR_MESTRADO = COR_CAPES                   # verde
+COR_DOUTORADO = OKABE_ITO["azul_claro"]    # azul-claro
+COR_PROFISSIONAL = COR_DESTAQUE            # laranja
+COR_ANTROPOLOGIA = COR_DESTAQUE            # laranja (categoria em foco em capes_h01)
+COR_OUTRAS = COR_NEUTRO                    # cinza (fallback do capes_h02)
 
 
 def carregar_humanas() -> pd.DataFrame:
@@ -67,10 +72,11 @@ def carregar_humanas() -> pd.DataFrame:
 
 
 def _cor_area(area: str) -> str:
+    # Base CAPES em verde; Antropologia (foco) em laranja de destaque.
     s = str(area).lower()
     if "antropologia" in s:
         return COR_ANTROPOLOGIA
-    return COR_OUTRAS
+    return COR_CAPES
 
 
 def figh01_areas_humanas(df: pd.DataFrame) -> None:
@@ -90,7 +96,7 @@ def figh01_areas_humanas(df: pd.DataFrame) -> None:
     from matplotlib.patches import Patch
     ax.legend(handles=[
         Patch(color=COR_ANTROPOLOGIA, label="Antropologia"),
-        Patch(color=COR_OUTRAS, label="Outras áreas de Humanas"),
+        Patch(color=COR_CAPES, label="Outras áreas de Humanas"),
     ], loc="lower right", frameon=False, fontsize=8)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h01_areas_humanas.png")
