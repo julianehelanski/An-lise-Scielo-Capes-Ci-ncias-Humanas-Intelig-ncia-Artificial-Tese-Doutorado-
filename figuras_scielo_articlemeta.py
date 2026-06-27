@@ -45,6 +45,7 @@ from utils import (
     FIGURAS_DIR,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    eixo_ptbr,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -239,7 +240,9 @@ def fig11_subject_area(df, universo):
         ax2.set_xlabel("Taxa interna: % da subject area que é sobre o campo")
         ax2.set_xlim(0, taxa.max() * 1.20)
         ax2.set_yticklabels([])
+        eixo_ptbr(ax2, "x")
 
+    eixo_ptbr(ax1, "x")
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "scielo_11_subject_area_share.png")
     salvar_figura(out)

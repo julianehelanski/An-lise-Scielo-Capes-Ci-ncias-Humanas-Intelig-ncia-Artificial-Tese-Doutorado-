@@ -39,6 +39,7 @@ from utils import (
     LABEL_GUARDA_CHUVA_CURTO,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    eixo_ptbr,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -119,7 +120,8 @@ def texto_classificacao(df: pd.DataFrame) -> pd.Series:
 
 
 def _cor_por_humanas(label: str) -> str:
-    return COR_HUMANAS if "Humanas" in str(label) else COR_NEUTRA
+    # Caixa-insensível: os rótulos vêm em maiúsculas ("CIÊNCIAS HUMANAS").
+    return COR_HUMANAS if "humanas" in str(label).lower() else COR_NEUTRA
 
 
 # ---------------------------------------------------------------------------
@@ -161,7 +163,9 @@ def fig11_grande_area(df: pd.DataFrame, totais_universo: pd.Series | None) -> No
         ax2.set_xlabel("Taxa interna: % da grande área que é sobre IA")
         ax2.set_xlim(0, taxa.max() * 1.18)
         ax2.set_yticklabels([])  # eixo Y duplicado, omite
+        eixo_ptbr(ax2, "x")
 
+    eixo_ptbr(ax1, "x")
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_11_grande_area_share.png")
     salvar_figura(out)

@@ -33,6 +33,7 @@ from utils import (
     CORES_INTERMEDIARIAS,
     FIGURAS_DIR,
     aplicar_estilo_padrao,
+    eixo_ptbr,
     garantir_diretorio,
     num_ptbr,
     pct_ptbr,
@@ -108,6 +109,7 @@ def fig_ranking_paises(top: int = 15) -> None:
         ax.text(v, y, f" {num_ptbr(int(v))}".replace(",", "."), va="center", fontsize=8)
     ax.set_xlabel("Publicações de IA nas Humanidades (2016–2024)")
     ax.margins(x=0.12)
+    eixo_ptbr(ax, "x")
     _salvar(fig, "openalex_01_ranking_paises.png")
 
 
@@ -151,6 +153,8 @@ def fig_brasil_temporal() -> None:
     ax2.set_ylabel("Taxa interna (%)", color=COR_BRASIL)
     ax2.tick_params(axis="y", labelcolor=COR_BRASIL)
     ax2.grid(False)
+    eixo_ptbr(ax1, "y")
+    eixo_ptbr(ax2, "y")
 
     _salvar(fig, "openalex_03_brasil_temporal.png")
 

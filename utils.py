@@ -308,6 +308,28 @@ def pct_ptbr(valor, casas: int = 1) -> str:
     return f"{valor:,.{casas}f}".replace(",", "\x00").replace(".", ",").replace("\x00", ".")
 
 
+def _tick_ptbr(x, pos=None) -> str:
+    """Formata um valor de tick de eixo em pt-BR (milhar com ponto, decimal
+    com vírgula). Inteiros saem sem casas decimais."""
+    if float(x).is_integer():
+        return num_ptbr(int(round(x)))
+    return f"{x:g}".replace(".", ",")
+
+
+def eixo_ptbr(ax, eixo: str = "x") -> None:
+    """Aplica notação numérica pt-BR aos ticks de um eixo NUMÉRICO.
+
+    Use apenas em eixos contínuos (não categóricos). ``eixo`` aceita
+    'x', 'y' ou 'ambos'.
+    """
+    from matplotlib.ticker import FuncFormatter
+    fmt = FuncFormatter(_tick_ptbr)
+    if eixo in ("x", "ambos"):
+        ax.xaxis.set_major_formatter(fmt)
+    if eixo in ("y", "ambos"):
+        ax.yaxis.set_major_formatter(fmt)
+
+
 def salvar_figura(caminho, fig=None, **kwargs):
     """Salva a figura em PNG e SVG usando o caminho como nome-base.
 
