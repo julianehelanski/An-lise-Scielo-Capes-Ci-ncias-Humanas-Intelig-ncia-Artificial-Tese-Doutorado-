@@ -43,9 +43,10 @@ done
 PY="${PYTHON:-python3}"
 
 # --- Destinos na tese (espelham ex_cap2.tex) ------------------------------
-# Pasta cap.2/analise_bibliometrica/ : figuras capes_/scielo_/comparativo
-# Pasta cap.2/ (raiz)                : figuras openalex_*
-DST_AB="$TESE_DIR/figuras/cap.2/analise_bibliometrica"
+# Pasta cap.2/capes-scielo/ : figuras capes_/scielo_/comparativo
+# Pasta cap.2/ (raiz)        : figuras openalex_*
+# (espelha exatamente os \includegraphics de ex_cap2.tex)
+DST_AB="$TESE_DIR/figuras/cap.2/capes-scielo"
 DST_OA="$TESE_DIR/figuras/cap.2"
 
 FIG_AB=(
