@@ -37,6 +37,10 @@ from utils import (
     COR_SCIELO,
     CORES_INTERMEDIARIAS,
     FIGURAS_DIR,
+    GUIA_COR,
+    PONTO_S,
+    _TXT,
+    _TXT_FRACO,
     aplicar_estilo_padrao,
     dotplot,
     dumbbell,
@@ -143,27 +147,55 @@ def fig_taxa_interna_paises(top: int = 15) -> None:
 
 
 def fig_brasil_temporal() -> None:
-    """openalex_03 — evolução anual do Brasil: volume (barras) + taxa interna (linha)."""
+    """openalex_03 — evolução anual do Brasil: volume (lollipop de bolinhas) +
+    taxa interna (linha com bolinhas), em eixos gêmeos."""
     df = _ler_csv("openalex_ia_humanas_por_ano_BR.csv")
     if df is None:
         return
     df = df.sort_values("ano")
+    anos = df["ano"].astype(int).astype(str).tolist()
+    vol = df["count_ia_hum"].astype(float).tolist()
+    taxa = df["taxa_interna_%"].astype(float).tolist()
+    x = list(range(len(anos)))
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
-    ax1.bar(df["ano"].astype(int).astype(str), df["count_ia_hum"], color=COR_DEST, label="Volume")
-    ax1.set_ylabel("Publicações de IA nas Humanidades", color=COR_DEST)
-    ax1.tick_params(axis="y", labelcolor=COR_DEST)
-    for x, v in enumerate(df["count_ia_hum"]):
-        ax1.text(x, v, f"{num_ptbr(int(v))}".replace(",", "."), ha="center", va="bottom", fontsize=8)
 
+    # Volume: lollipop (haste fina + bolinha), no lugar das barras.
+    vmax = max(vol) if vol else 1
+    ax1.vlines(x, 0, vol, color=GUIA_COR, linewidth=1.8, zorder=1)
+    ax1.scatter(x, vol, s=PONTO_S, color=COR_DEST, edgecolors="white",
+                linewidths=1.4, zorder=3)
+    for xi, v in zip(x, vol):
+        ax1.text(xi, v + vmax * 0.025, num_ptbr(v), ha="center", va="bottom",
+                 fontsize=8.5, color=_TXT)
+    ax1.set_ylabel("volume de IA nas Humanidades", color=COR_DEST, fontsize=9)
+    ax1.tick_params(axis="y", labelcolor=COR_DEST)
+    ax1.set_ylim(0, vmax * 1.18)
+
+    # Taxa interna: linha com bolinhas no eixo direito.
     ax2 = ax1.twinx()
-    ax2.plot(df["ano"].astype(int).astype(str), df["taxa_interna_%"],
-             color=COR_SCIELO, marker="o", linewidth=2, label="Taxa interna")
-    ax2.set_ylabel("Taxa interna (%)", color=COR_SCIELO)
+    ax2.plot(x, taxa, color=COR_SCIELO, linewidth=2, zorder=2)
+    ax2.scatter(x, taxa, s=PONTO_S, color=COR_SCIELO, edgecolors="white",
+                linewidths=1.4, zorder=3)
+    tmin, tmax = min(taxa), max(taxa)
+    for xi, t in zip(x, taxa):
+        ax2.text(xi, t - (tmax - tmin) * 0.08, f"{pct_ptbr(t)}%", ha="center",
+                 va="top", fontsize=8.5, color=COR_SCIELO)
+    ax2.set_ylabel("taxa interna (%)", color=COR_SCIELO, fontsize=9)
     ax2.tick_params(axis="y", labelcolor=COR_SCIELO)
+    ax2.set_ylim(tmin - (tmax - tmin) * 0.25, tmax + (tmax - tmin) * 0.18)
     ax2.grid(False)
+
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(anos)
+    for sp in ("top",):
+        ax1.spines[sp].set_visible(False)
+        ax2.spines[sp].set_visible(False)
     eixo_ptbr(ax1, "y")
     eixo_ptbr(ax2, "y")
+    ax1.text(0, -0.13, "Bolinhas = volume anual (esq.) · linha = taxa interna (dir.). "
+             "Brasil, 2016–2024.", transform=ax1.transAxes, fontsize=8.5,
+             style="italic", color=_TXT_FRACO)
 
     _salvar(fig, "openalex_03_brasil_temporal.png")
 

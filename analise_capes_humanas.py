@@ -113,7 +113,6 @@ def figh02_temporal_humanas(df: pd.DataFrame) -> None:
 
     fig, ax = plt.subplots(figsize=(10, 5.5))
     anos = pivot.index.astype(int).tolist()
-    bottom = np.zeros(len(anos))
     cor_map = {
         "MESTRADO": COR_MESTRADO,
         "DOUTORADO": COR_DOUTORADO,
@@ -121,22 +120,30 @@ def figh02_temporal_humanas(df: pd.DataFrame) -> None:
     }
     ordem = ["DOUTORADO", "MESTRADO", "MESTRADO PROFISSIONAL"]
     presentes = [g for g in ordem if g in pivot.columns] + [g for g in pivot.columns if g not in ordem]
+    # Uma linha com bolinhas por grau acadêmico (trajetória de cada nível),
+    # no lugar das barras empilhadas. O rótulo do grau fica no fim da linha.
+    totais = pivot.sum(axis=1).values
     for grau in presentes:
         cor = cor_map.get(grau, COR_OUTRAS)
         vals = pivot[grau].values
-        ax.bar(anos, vals, bottom=bottom, color=cor, label=grau.title(), edgecolor="white")
-        for x, v, b in zip(anos, vals, bottom):
-            if v > 3:
-                ax.text(x, b + v / 2, f"{int(v)}", ha="center", va="center",
-                        color="white" if v > 8 else "#333", fontsize=8)
-        bottom = bottom + vals
-    for x, total in zip(anos, bottom):
-        ax.text(x, total + bottom.max() * 0.02, f"{int(total)}",
-                ha="center", va="bottom", fontsize=10, color="#404040")
-    ax.set_xlabel("Ano base de defesa")
-    ax.set_ylabel("Trabalhos no campo Tecnologias IA/ML/DL em Ciências Humanas")
+        ax.plot(anos, vals, color=cor, linewidth=2, zorder=2)
+        ax.scatter(anos, vals, s=140, color=cor, edgecolors="white",
+                   linewidths=1.4, zorder=3)
+        ax.text(anos[-1] + 0.06, vals[-1], f"  {grau.title()} ({num_ptbr(vals[-1])})",
+                va="center", fontsize=8.5, color=cor)
+    # Total anual em cinza discreto no topo (a curva agregada que o texto cita).
+    for x, tot in zip(anos, totais):
+        ax.text(x, max(totais) * 1.04, num_ptbr(tot), ha="center", va="bottom",
+                fontsize=8.5, color="#8a8a8a")
+    ax.text(anos[0], max(totais) * 1.10, "total no ano:", ha="left", va="bottom",
+            fontsize=8, style="italic", color="#8a8a8a")
+    ax.set_xlabel("ano base de defesa", fontsize=9, color="#6b6b6b")
+    ax.set_ylabel("trabalhos em Ciências Humanas (IA/ML/DL)", fontsize=9, color="#6b6b6b")
     ax.set_xticks(anos)
-    ax.legend(loc="upper left", frameon=False)
+    ax.set_ylim(0, max(totais) * 1.16)
+    ax.set_xlim(anos[0] - 0.15, anos[-1] + 1.4)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_h02_temporal_humanas.png")
     salvar_figura(out)
