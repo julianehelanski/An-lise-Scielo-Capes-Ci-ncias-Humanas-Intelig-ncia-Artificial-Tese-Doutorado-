@@ -472,6 +472,54 @@ def dumbbell(ax, labels, series, cores, sufixo="") -> None:
     ax.grid(axis="x", linestyle=":", linewidth=0.6, color="#dddddd", zorder=0)
 
 
+def bolha_matriz(ax, matriz, cmap=CMAP_SEQUENCIAL, rotulos=False,
+                 s_min=40, s_max=900):
+    """Matriz como grade de bolinhas (balloon plot) no lugar de heatmap.
+
+    Em cada cruzamento linha×coluna entra uma bolinha cuja ÁREA codifica o
+    valor e cuja cor segue ``cmap`` (viridis), reforçando a magnitude.
+    Células com valor zero ficam vazias. Mantém a identidade da bolinha sem
+    abrir mão do sequencial perceptual. ``matriz`` é um DataFrame (linhas =
+    índice, colunas = colunas). Devolve o PathCollection (para colorbar)."""
+    rows = list(matriz.index)
+    cols = list(matriz.columns)
+    vmax = 1.0
+    for r in range(len(rows)):
+        for c in range(len(cols)):
+            vmax = max(vmax, float(matriz.iat[r, c]))
+    xs, ys, sizes, vals = [], [], [], []
+    for i in range(len(rows)):
+        for j in range(len(cols)):
+            v = float(matriz.iat[i, j])
+            if v <= 0:
+                continue
+            xs.append(j)
+            ys.append(i)
+            sizes.append(s_min + (s_max - s_min) * (v / vmax))  # área ∝ valor
+            vals.append(v)
+    sc = ax.scatter(xs, ys, s=sizes, c=vals, cmap=cmap, zorder=3,
+                    edgecolors="white", linewidths=0.8)
+    if rotulos:
+        for x, y, v in zip(xs, ys, vals):
+            ax.annotate(num_ptbr(v), xy=(x, y), xytext=(0, 0),
+                        textcoords="offset points", ha="center", va="center",
+                        fontsize=6.5, color="white"
+                        if v > vmax * 0.55 else _TXT)
+    ax.set_xticks(range(len(cols)))
+    ax.set_xticklabels(cols, fontsize=9, color=_TXT)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels(rows, fontsize=9, color=_TXT)
+    ax.set_xlim(-0.6, len(cols) - 0.4)
+    ax.set_ylim(-0.6, len(rows) - 0.4)
+    ax.invert_yaxis()
+    ax.set_axisbelow(True)
+    ax.grid(True, color="#eef0f2", linewidth=0.8, zorder=0)
+    ax.tick_params(left=False, bottom=False)
+    for s in ax.spines.values():
+        s.set_visible(False)
+    return sc
+
+
 def salvar_figura(caminho, fig=None, **kwargs):
     """Salva a figura em PNG e SVG usando o caminho como nome-base.
 

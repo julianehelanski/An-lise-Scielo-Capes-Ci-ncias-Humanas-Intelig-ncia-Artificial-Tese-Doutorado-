@@ -43,6 +43,7 @@ from utils import (
     LABEL_GUARDA_CHUVA_CURTO,
     STOPWORDS_PT,
     aplicar_estilo_padrao,
+    bolha_matriz,
     dotplot,
     eixo_ptbr,
     estilo_editorial,
@@ -230,22 +231,11 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
     norm_col = bruto.div(bruto.sum(axis=0).replace(0, np.nan), axis=1).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(11, 6.5))
-    im = ax.imshow(norm_col.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm_col.values.max())
-    ax.set_xticks(range(len(norm_col.columns)))
+    sc = bolha_matriz(ax, norm_col, cmap=CMAP_SEQUENCIAL)
     ax.set_xticklabels(norm_col.columns, rotation=40, ha="right", fontsize=8)
-    ax.set_yticks(range(len(norm_col.index)))
-    ax.set_yticklabels(norm_col.index, fontsize=9)
-    for i in range(norm_col.shape[0]):
-        for j in range(norm_col.shape[1]):
-            v = norm_col.values[i, j]
-            raw = int(bruto.values[i, j])
-            if raw > 0:
-                txt = f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})"
-                ax.text(j, i, txt, ha="center", va="center",
-                        color="#333" if v > norm_col.values.max() * 0.6 else "white",
-                        fontsize=6.5)
-    cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
-    cbar.set_label("% do termo concentrado na grande área", fontsize=8)
+    cbar = plt.colorbar(sc, ax=ax, fraction=0.025, pad=0.02)
+    cbar.set_label("% do termo concentrado na grande área\n"
+                   "(tamanho e cor da bolinha)", fontsize=8)
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_13_heatmap_area_keyword.png")
@@ -537,22 +527,11 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
     norm = bruto.div(bruto.sum(axis=1).replace(0, np.nan), axis=0).fillna(0) * 100
 
     fig, ax = plt.subplots(figsize=(13, 5.5))
-    im = ax.imshow(norm.values, aspect="auto", cmap=CMAP_SEQUENCIAL, vmin=0, vmax=norm.values.max())
-    ax.set_xticks(range(len(norm.columns)))
+    sc = bolha_matriz(ax, norm, cmap=CMAP_SEQUENCIAL)
     ax.set_xticklabels(norm.columns, rotation=30, ha="right", fontsize=8)
-    ax.set_yticks(range(len(norm.index)))
-    ax.set_yticklabels(norm.index, fontsize=9)
-    for i in range(norm.shape[0]):
-        for j in range(norm.shape[1]):
-            v = norm.values[i, j]
-            raw = int(bruto.values[i, j])
-            if raw > 0:
-                ax.text(j, i, f"{pct_ptbr(v, 0)}%\n({num_ptbr(raw)})",
-                        ha="center", va="center",
-                        color="#333" if v > norm.values.max() * 0.6 else "white",
-                        fontsize=7)
-    cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
-    cbar.set_label("% do subcampo concentrado na grande área", fontsize=8)
+    cbar = plt.colorbar(sc, ax=ax, fraction=0.025, pad=0.02)
+    cbar.set_label("% do subcampo concentrado na grande área\n"
+                   "(tamanho e cor da bolinha)", fontsize=8)
     cbar.ax.tick_params(labelsize=7)
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_22_heatmap_subcampo_grande_area.png")
