@@ -290,6 +290,24 @@ def garantir_diretorio(caminho):
     return caminho
 
 
+def num_ptbr(valor) -> str:
+    """Inteiro no padrão brasileiro: ponto como separador de milhar.
+
+    Ex.: 5284 -> "5.284", 631 -> "631". Usado nos rótulos das figuras para
+    alinhar a notação numérica das imagens ao texto da tese (pt-BR).
+    """
+    return f"{int(round(valor)):,}".replace(",", ".")
+
+
+def pct_ptbr(valor, casas: int = 1) -> str:
+    """Percentual no padrão brasileiro: vírgula decimal, sem o símbolo '%'.
+
+    Ex.: 40.66 -> "40,7". O caller acrescenta o '%'. Mantém o ponto de milhar
+    pt-BR quando houver (ex.: 1234.5 -> "1.234,5").
+    """
+    return f"{valor:,.{casas}f}".replace(",", "\x00").replace(".", ",").replace("\x00", ".")
+
+
 def salvar_figura(caminho, fig=None, **kwargs):
     """Salva a figura em PNG e SVG usando o caminho como nome-base.
 

@@ -46,6 +46,8 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    num_ptbr,
+    pct_ptbr,
     salvar_figura,
 )
 
@@ -479,9 +481,9 @@ def fig21_subcampos_dist(df):
     for bar, val in zip(bars, vals):
         ax.text(bar.get_width() + max(vals) * 0.02,
                 bar.get_y() + bar.get_height()/2,
-                f"{val} ({val/total*100:.1f}%)",
+                f"{num_ptbr(val)} ({pct_ptbr(val/total*100)}%)",
                 va="center", fontsize=9)
-    ax.set_xlabel(f"Artigos que mencionam o subcampo (N total = {total})")
+    ax.set_xlabel(f"Artigos que mencionam o subcampo (N total = {num_ptbr(total)})")
     ax.set_xlim(0, max(vals) * 1.25)
     ax.text(0.99, -0.18,
             "Artigos podem estar em múltiplos subcampos; percentuais somam mais que 100%.",

@@ -40,6 +40,8 @@ from utils import (
     STOPWORDS_PT,
     aplicar_estilo_padrao,
     garantir_diretorio,
+    num_ptbr,
+    pct_ptbr,
     salvar_figura,
 )
 
@@ -516,9 +518,9 @@ def fig21_subcampos_distribuicao(df: pd.DataFrame) -> None:
     for bar, val in zip(bars, vals):
         ax.text(bar.get_width() + max(vals) * 0.01,
                 bar.get_y() + bar.get_height() / 2,
-                f"{val:,} ({val/total*100:.1f}%)",
+                f"{num_ptbr(val)} ({pct_ptbr(val/total*100)}%)",
                 va="center", fontsize=9)
-    ax.set_xlabel(f"Trabalhos que mencionam o subcampo (N total do corpus = {total:,})")
+    ax.set_xlabel(f"Trabalhos que mencionam o subcampo (N total do corpus = {num_ptbr(total)})")
     ax.set_xlim(0, max(vals) * 1.18)
     # Nota: percentuais somam mais que 100% porque um trabalho pode estar
     # em múltiplos subcampos
