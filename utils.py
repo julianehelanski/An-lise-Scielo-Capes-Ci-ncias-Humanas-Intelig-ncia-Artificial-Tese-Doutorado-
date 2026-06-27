@@ -381,8 +381,13 @@ def estilo_editorial(ax, titulo=None, subtitulo=None, nota=None) -> None:
 
 
 def _rotulo_num_pct(ax, x, i, num_str, pct_str, mx) -> None:
-    t_num = ax.text(x + mx * 0.025, i, num_str, va="center", ha="left",
-                    fontsize=10.5, fontweight="bold", color=_TXT)
+    # Folga em pontos (não em unidades de dado): o número fica sempre à
+    # direita da bolinha, sem encostar, mesmo quando o eixo é curto e o
+    # marcador ocupa uma fração grande do intervalo (ex.: painéis do
+    # comparativo, com mx pequeno).
+    t_num = ax.annotate(num_str, xy=(x, i), xytext=(12, 0),
+                        textcoords="offset points", va="center", ha="left",
+                        fontsize=10.5, fontweight="bold", color=_TXT)
     if pct_str is not None:
         # Ancora o percentual à borda direita real do número (medida no
         # desenho), com folga fixa em pontos: nunca encosta, independe da
