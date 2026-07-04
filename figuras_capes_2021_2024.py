@@ -54,6 +54,19 @@ COR_NEUTRA = CORES_INTERMEDIARIAS[9]       # cinza-azulado
 COR_DEST = CORES_INTERMEDIARIAS[3]         # azul
 COR_OUTROS = CORES_INTERMEDIARIAS[11]      # cinza muito claro
 
+# Identidade das matrizes de bolhas do capítulo 2 (paralela às matrizes do
+# capítulo 3 em bibliometria-publicacoes-c4ai/bolhas_publicacoes.py e
+# equipe_composicao.py). Heatmap-bolhas com colorbar vertical à direita, sem
+# números dentro das bolhas, sobre escala sequencial monocromática branco →
+# Okabe-Ito. Os matizes usados aqui (verde para keyword × grande área e
+# laranja para subcampo × grande área) diferenciam-se do par usado no
+# capítulo 3 (azul para publicações, vermelho para equipe).
+COR_TEXTO_BOLHAS = "#404040"
+COR_NOTA_BOLHAS = "#8a8a8a"
+COR_ANCORA_KEYWORD = "#009E73"  # verde Okabe-Ito (fig 13)
+COR_ANCORA_SUBCAMPO = "#E69F00"  # laranja Okabe-Ito (fig 22)
+COR_FRAC_MIN = 0.18  # piso de saturação da cor no valor mínimo
+
 KEYWORDS_HEATMAP = [
     ("inteligência artificial", r"\b(intelig[êe]ncia\s+artificial|artificial\s+intelligence)\b"),
     ("machine/deep learning", r"\b(machine\s+learning|deep\s+learning|aprendizado\s+de\s+m[áa]quina|aprendizado\s+profundo)\b"),
@@ -118,6 +131,89 @@ def texto_classificacao(df: pd.DataFrame) -> pd.Series:
 
 def _cor_por_humanas(label: str) -> str:
     return COR_HUMANAS if "Humanas" in str(label) else COR_NEUTRA
+
+
+def _plot_bolhas_grade(
+    matriz: pd.DataFrame,
+    cor_ancora: str,
+    label_colorbar: str,
+    figsize: tuple[float, float],
+    xtick_rot: int = 40,
+    xtick_fontsize: int = 9,
+    ytick_fontsize: int = 9.5,
+) -> plt.Figure:
+    """Desenha uma matriz de bolhas grade × grade no desenho heatmap-bolhas
+    do capítulo 3 (bolhas_publicacoes.py): escala sequencial branco → ancora
+    Okabe-Ito, colorbar vertical à direita, sem números dentro das bolhas,
+    tamanho E cor codificando o valor (piso de saturação COR_FRAC_MIN).
+
+    Parâmetros
+    ----------
+    matriz : linhas indexadas por rótulo do eixo y (grande área ou subcampo)
+             e colunas indexadas por rótulo do eixo x (keyword ou grande área);
+             valores numéricos são os percentuais a plotar.
+    cor_ancora : cor Okabe-Ito para a extremidade quente da escala.
+    label_colorbar : texto do rótulo da colorbar (unidade dos valores).
+    figsize : dimensões da figura em polegadas.
+    xtick_rot, xtick_fontsize, ytick_fontsize : ajustes de eixo por figura.
+    """
+    linhas = list(matriz.index)
+    colunas = list(matriz.columns)
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    valores = matriz.values.astype(float)
+    vmax = float(valores.max())
+    if vmax == 0:
+        vmax = 1.0  # protege escala degenerada quando não há dados
+    norma = mcolors.Normalize(vmin=0, vmax=vmax)
+    cmap_sequencial = mcolors.LinearSegmentedColormap.from_list(
+        "okabe_ito_seq", ["#ffffff", cor_ancora]
+    )
+
+    tamanho_min, tamanho_max = 30, 900
+    xs, ys, tamanhos, cores = [], [], [], []
+    for i, _ in enumerate(linhas):
+        for j, _ in enumerate(colunas):
+            v = float(valores[i, j])
+            frac = norma(v)
+            xs.append(j)
+            ys.append(i)
+            tamanhos.append(tamanho_min + frac * (tamanho_max - tamanho_min))
+            cores.append(cmap_sequencial(COR_FRAC_MIN + (1 - COR_FRAC_MIN) * frac))
+
+    ax.scatter(xs, ys, s=tamanhos, c=cores, edgecolors="white",
+               linewidths=1.0, zorder=3)
+
+    ax.set_xticks(range(len(colunas)))
+    ax.set_xticklabels(colunas, rotation=xtick_rot, ha="right",
+                       fontsize=xtick_fontsize, color=COR_TEXTO_BOLHAS)
+    ax.set_yticks(range(len(linhas)))
+    ax.set_yticklabels(linhas, fontsize=ytick_fontsize, color=COR_TEXTO_BOLHAS)
+    ax.invert_yaxis()
+    ax.set_xlim(-0.6, len(colunas) - 0.4)
+    ax.set_ylim(len(linhas) - 0.4, -0.6)
+    ax.tick_params(colors=COR_TEXTO_BOLHAS)
+
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.grid(True, alpha=0.25, linewidth=0.6, color=COR_NOTA_BOLHAS)
+    ax.set_axisbelow(True)
+
+    # Colorbar aplica o mesmo piso de saturação usado nas bolhas.
+    cmap_display = mcolors.LinearSegmentedColormap.from_list(
+        "okabe_ito_display",
+        [cmap_sequencial(COR_FRAC_MIN + (1 - COR_FRAC_MIN) * t)
+         for t in np.linspace(0, 1, 256)],
+    )
+    sm = plt.cm.ScalarMappable(norm=norma, cmap=cmap_display)
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax, pad=0.02, aspect=25)
+    cbar.set_label(label_colorbar, color=COR_TEXTO_BOLHAS, fontsize=9.5)
+    cbar.ax.tick_params(colors=COR_TEXTO_BOLHAS, labelsize=9)
+    cbar.outline.set_visible(False)
+
+    return fig
 
 
 # ---------------------------------------------------------------------------
@@ -227,25 +323,15 @@ def fig13_heatmap_area_keyword(df: pd.DataFrame) -> None:
     # Normaliza por COLUNA (termo): mostra concentração geográfica do termo nas áreas
     norm_col = bruto.div(bruto.sum(axis=0).replace(0, np.nan), axis=1).fillna(0) * 100
 
-    fig, ax = plt.subplots(figsize=(11, 6.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_red", ["#FFFFFF", COR_HUMANAS])
-    im = ax.imshow(norm_col.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm_col.values.max())
-    ax.set_xticks(range(len(norm_col.columns)))
-    ax.set_xticklabels(norm_col.columns, rotation=40, ha="right", fontsize=8)
-    ax.set_yticks(range(len(norm_col.index)))
-    ax.set_yticklabels(norm_col.index, fontsize=9)
-    for i in range(norm_col.shape[0]):
-        for j in range(norm_col.shape[1]):
-            v = norm_col.values[i, j]
-            raw = int(bruto.values[i, j])
-            if raw > 0:
-                txt = f"{v:.0f}%\n({raw:,})"
-                ax.text(j, i, txt, ha="center", va="center",
-                        color="white" if v > norm_col.values.max() * 0.55 else "#333",
-                        fontsize=6.5)
-    cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
-    cbar.set_label("% do termo concentrado na grande área", fontsize=8)
-    cbar.ax.tick_params(labelsize=7)
+    fig = _plot_bolhas_grade(
+        norm_col,
+        cor_ancora=COR_ANCORA_KEYWORD,
+        label_colorbar="% do termo concentrado na grande área (tamanho e cor da bolha)",
+        figsize=(12, 6.5),
+        xtick_rot=40,
+        xtick_fontsize=9,
+        ytick_fontsize=9.5,
+    )
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_13_heatmap_area_keyword.png")
     salvar_figura(out)
@@ -548,25 +634,15 @@ def fig22_heatmap_subcampo_grande_area(df: pd.DataFrame) -> None:
     # Normaliza por linha (subcampo): mostra concentração geográfica do subcampo
     norm = bruto.div(bruto.sum(axis=1).replace(0, np.nan), axis=0).fillna(0) * 100
 
-    fig, ax = plt.subplots(figsize=(13, 5.5))
-    cmap = mcolors.LinearSegmentedColormap.from_list("muted_blue", ["#FFFFFF", CORES_INTERMEDIARIAS[3]])
-    im = ax.imshow(norm.values, aspect="auto", cmap=cmap, vmin=0, vmax=norm.values.max())
-    ax.set_xticks(range(len(norm.columns)))
-    ax.set_xticklabels(norm.columns, rotation=30, ha="right", fontsize=8)
-    ax.set_yticks(range(len(norm.index)))
-    ax.set_yticklabels(norm.index, fontsize=9)
-    for i in range(norm.shape[0]):
-        for j in range(norm.shape[1]):
-            v = norm.values[i, j]
-            raw = int(bruto.values[i, j])
-            if raw > 0:
-                ax.text(j, i, f"{v:.0f}%\n({raw:,})",
-                        ha="center", va="center",
-                        color="white" if v > norm.values.max() * 0.5 else "#333",
-                        fontsize=7)
-    cbar = plt.colorbar(im, ax=ax, fraction=0.025, pad=0.02)
-    cbar.set_label("% do subcampo concentrado na grande área", fontsize=8)
-    cbar.ax.tick_params(labelsize=7)
+    fig = _plot_bolhas_grade(
+        norm,
+        cor_ancora=COR_ANCORA_SUBCAMPO,
+        label_colorbar="% do subcampo concentrado na grande área (tamanho e cor da bolha)",
+        figsize=(14, 6.2),
+        xtick_rot=30,
+        xtick_fontsize=9,
+        ytick_fontsize=9.5,
+    )
     plt.tight_layout()
     out = os.path.join(FIGURAS_DIR, "capes_22_heatmap_subcampo_grande_area.png")
     salvar_figura(out)
